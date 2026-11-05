@@ -1,0 +1,9 @@
+VoxSentinel evaluation — VoxSentinel MFCC Baseline v0.2.0
+Partition: eval | n=5268 (real=2618, synthetic=2650)
+Precision(synthetic)=0.2254  Recall(synthetic)=0.0415  F1=0.0701
+Confusion: tn=2240 fp=378 fn=2540 tp=110
+FPR=0.1444 FNR=0.9585
+ROC-AUC=0.4640
+EER=0.5121
+Per-source: audio_deepfake n=589 F1=0.0752; fake_or_real n=2407 F1=0.1204; human_ai_voices n=4 F1=0.0000; speech_commands_real n=1059 F1=unavailable; synthetic_commands n=1209 F1=unavailable
+Report: ../../data/multidataset/reports/deployed_baseline_eval/evaluation_eval.json

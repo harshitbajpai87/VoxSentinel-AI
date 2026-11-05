@@ -1,0 +1,12 @@
+import { chromium } from 'playwright'
+const browser = await chromium.launch()
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
+await page.goto('http://localhost:5173/protection', { waitUntil: 'networkidle' })
+await page.waitForTimeout(1500)
+const t = (await page.locator('body').innerText()).toLowerCase()
+console.log('transcript heading:', t.includes('transcript') ? 'YES' : 'NO')
+console.log('real transcript text present:', t.includes('staircase') || t.includes('minutes') ? 'YES' : 'check')
+console.log('recommended actions:', t.includes('recommended actions') ? 'YES' : 'NO')
+console.log('limitations:', t.includes('limitations') ? 'YES' : 'NO')
+console.log('risk reasoning:', t.includes('how the risk was assessed') ? 'YES' : 'NO')
+await browser.close()

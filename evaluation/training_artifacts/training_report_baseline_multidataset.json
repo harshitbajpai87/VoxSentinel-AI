@@ -1,0 +1,93 @@
+{
+  "report_type": "training_report",
+  "model_name": "VoxSentinel MFCC Baseline",
+  "model_version": "0.2.0-multidataset",
+  "artifact_path": "../../data/multidataset/models/baseline_multidataset/detector.joblib",
+  "trained_at": "2026-10-24T07:21:34Z",
+  "dataset": {
+    "manifest": "../../data/multidataset/training_manifest.jsonl",
+    "sources": [
+      "audio_deepfake",
+      "fake_or_real",
+      "human_ai_voices",
+      "speech_commands_real",
+      "synthetic_commands"
+    ],
+    "summary": {
+      "counts": {
+        "train": {
+          "real": 12937,
+          "synthetic": 12107
+        },
+        "validation": {
+          "real": 2529,
+          "synthetic": 2590
+        },
+        "eval": {
+          "real": 2827,
+          "synthetic": 2641
+        }
+      },
+      "total": 35631
+    },
+    "note": "Counts describe the manifest used. Interpret metrics ONLY against the dataset they came from \u2014 this baseline is not claimed to detect synthesis methods it was never evaluated on."
+  },
+  "split": {
+    "strategy": "manifest partitions; scaler fit on train only; speaker-disjointness enforced between train and validation and against the reserved eval partition",
+    "leakage_exempt_sources": [],
+    "leakage_note": "Exempt sources may share a generator voice between train and validation (ASVspoof-style); eval speakers and generators are always disjoint from training.",
+    "seed": 42,
+    "train_n": 25044,
+    "validation_n": 5119,
+    "eval_reserved": 5468
+  },
+  "features": {
+    "target_sample_rate": 16000,
+    "segment_seconds": 4.0,
+    "n_mfcc": 20,
+    "n_fft": 1024,
+    "hop_length": 256,
+    "n_mels": 128,
+    "fmin": 0.0,
+    "fmax": 8000.0
+  },
+  "classifier": {
+    "type": "sklearn.linear_model.LogisticRegression",
+    "params": {
+      "max_iter": 1000,
+      "class_weight": "balanced",
+      "random_state": 42
+    }
+  },
+  "environment": {
+    "python": "3.11.17",
+    "numpy": "2.4.6",
+    "scikit_learn": "1.9.1",
+    "librosa": "0.11.0",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36"
+  },
+  "validation_metrics": {
+    "n": 5119,
+    "n_real": 2529,
+    "n_synthetic": 2590,
+    "precision_synthetic": 0.8435818601076095,
+    "recall_synthetic": 0.8474903474903475,
+    "f1_synthetic": 0.8455315870570108,
+    "precision_real": 0.843067143424712,
+    "recall_real": 0.8390668248319494,
+    "confusion_matrix": {
+      "tn": 2122,
+      "fp": 407,
+      "fn": 395,
+      "tp": 2195
+    },
+    "false_positive_rate": 0.1609331751680506,
+    "false_negative_rate": 0.1525096525096525,
+    "roc_auc": 0.9158104215043718,
+    "operating_points_validation": {
+      "youden_threshold": 0.5390820623845792,
+      "youden_j": 0.6928795088937438,
+      "eer": 0.1567567567567008
+    }
+  }
+}

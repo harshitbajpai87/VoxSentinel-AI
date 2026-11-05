@@ -1,0 +1,9 @@
+VoxSentinel evaluation — VoxSentinel Enhanced MFCC Candidate v0.3.202610241550
+Partition: eval | n=5468 (real=2827, synthetic=2641)
+Precision(synthetic)=0.8780  Recall(synthetic)=0.9099  F1=0.8936
+Confusion: tn=2493 fp=334 fn=238 tp=2403
+FPR=0.1181 FNR=0.0901
+ROC-AUC=0.9573
+EER=0.1040
+Per-source: audio_deepfake n=741 F1=0.6106; fake_or_real n=2331 F1=0.8886; human_ai_voices n=3 F1=0.0000; speech_commands_real n=1142 F1=unavailable; synthetic_commands n=1251 F1=unavailable
+Report: ../../data/multidataset/reports/candidate_enhanced_logistic_eval/evaluation_eval.json

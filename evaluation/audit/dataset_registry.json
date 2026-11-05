@@ -1,0 +1,81 @@
+{
+  "registry_type": "voxsentinel_multidataset_registry",
+  "generated_at": "2026-10-24T06:37:25+00:00",
+  "kaggle_credentials_available": true,
+  "note": "Downloaded 2026-10-24 with owner-supplied Kaggle credentials. Statuses verified by measuring the extracted directories on disk.",
+  "datasets": [
+    {
+      "ref": "jbuchner/synthetic-speech-commands-dataset",
+      "title": "Synthetic Speech Commands Dataset",
+      "expected_license": "CC BY-SA 4.0",
+      "expected_bytes": 2682021232,
+      "notes": "SYNTHETIC-ONLY (TTS speech commands). Requires a real-speech supplement.",
+      "status": "downloaded",
+      "size_bytes": 1895558166,
+      "license": "CC BY-SA 4.0",
+      "creator": "morenoh149",
+      "download_status": "downloaded",
+      "directory": "jbuchner__synthetic-speech-commands-dataset",
+      "file_count": 83698,
+      "total_bytes": 2682018712
+    },
+    {
+      "ref": "kambingbersayaphitam/speech-dataset-of-human-and-ai-generated-voices",
+      "title": "Speech Dataset of Human and AI-Generated Voices",
+      "expected_license": "CC BY-NC-SA 4.0 (non-commercial)",
+      "expected_bytes": 1973792861,
+      "notes": "42 long WAV files (21 human, 21 AI), Indonesian, 4-9 min each.",
+      "status": "downloaded",
+      "size_bytes": 1462572017,
+      "license": "CC BY-NC-SA 4.0",
+      "creator": "kambing bersayap hitam",
+      "download_status": "downloaded",
+      "directory": "kambingbersayaphitam__speech-dataset-of-human-and-ai-generated-voices",
+      "file_count": 42,
+      "total_bytes": 1973791034
+    },
+    {
+      "ref": "mohammedabdeldayem/the-fake-or-real-dataset",
+      "title": "The Fake-or-Real (FoR) Dataset (deepfake audio)",
+      "expected_license": "LGPL 3.0",
+      "expected_bytes": 20216844884,
+      "notes": "~195k utterances; versions for-original/for-norm/for-2sec/for-rerec.",
+      "status": "downloaded",
+      "size_bytes": 17211773247,
+      "license": "GNU Lesser General Public License 3.0",
+      "creator": "Mohammed Abdeldayem",
+      "download_status": "downloaded",
+      "directory": "mohammedabdeldayem__the-fake-or-real-dataset",
+      "file_count": 169754,
+      "total_bytes": 20216844884
+    },
+    {
+      "ref": "adarshsingh0903/audio-deepfake-detection-dataset",
+      "title": "Audio Deepfake Detection Dataset",
+      "expected_license": "Apache 2.0",
+      "expected_bytes": 1417208088,
+      "notes": "4,447 WAV files (2,274 real / 2,173 fake per dataset description).",
+      "status": "downloaded",
+      "size_bytes": 1170155064,
+      "license": "Apache 2.0",
+      "creator": "FanaticAuthorship",
+      "download_status": "downloaded",
+      "directory": "adarshsingh0903__audio-deepfake-detection-dataset",
+      "file_count": 4447,
+      "total_bytes": 1417208088
+    },
+    {
+      "ref": "speech_commands_real/speech_commands_v0.02",
+      "title": "Speech Commands v0.02 (real human speech supplement)",
+      "expected_license": "CC BY 4.0 (per dataset of record)",
+      "expected_bytes": 2428923189,
+      "notes": "Authentic volunteer recordings; the real counterpart of the synthetic set.",
+      "status": "downloaded",
+      "url": "https://storage.googleapis.com/download.tensorflow.org/data/speech_commands_v0.02.tar.gz",
+      "directory": "speech_commands_real__speech_commands_v0.02",
+      "file_count": 105835,
+      "total_bytes": 3339385828,
+      "download_status": "downloaded"
+    }
+  ]
+}

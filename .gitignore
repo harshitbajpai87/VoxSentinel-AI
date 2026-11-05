@@ -1,0 +1,95 @@
+# ==============================================================================
+# VoxSentinel AI - .gitignore
+# ==============================================================================
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Python virtual environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+backend/.venv/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+
+# Linting & Type checking caches
+.ruff_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Node & Frontend dependencies & builds
+node_modules/
+frontend/node_modules/
+e2e/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.cache/
+*.tsbuildinfo
+.eslintcache
+
+# Logs & Debugging
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment files & Secrets
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+*.local.env
+
+# Explicitly ensure example environment templates are tracked
+!.env.example
+!backend/.env.example
+!frontend/.env.example
+
+# Local SQLite databases & local data directories
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+backend/voxsentinel.db
+backend/data/
+data/
+
+# IDEs & Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Operating System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini

@@ -1,0 +1,1 @@
+{"format": "voxsentinel-speaker-thresholds", "artifact_version": 1, "metric": "cosine_similarity", "eer_threshold": 0.5, "calibrated_on": "TEST FIXTURE (not real calibration data)", "calibration_pairs": 0, "created_at": "1970-01-01T00:00:00+00:00"}

@@ -1,0 +1,116 @@
+{
+  "report_type": "multisource_manifest_summary",
+  "data_dir": "../../data",
+  "seed": 42,
+  "sources_processed": [
+    "synthetic_commands",
+    "speech_commands_real",
+    "human_ai_voices",
+    "fake_or_real",
+    "audio_deepfake"
+  ],
+  "sources_skipped": [],
+  "adapter_notes": {
+    "synthetic_commands": "all 41849 files labeled fake per dataset description (synthetic-only corpus); excluded augmented_dataset_verynoisy variant",
+    "speech_commands_real": "105829 real files (6 background-noise files excluded); speaker from official <hash>_<n>.wav naming",
+    "human_ai_voices": "42 files (0 unknown); label from class folders",
+    "fake_or_real": "69300 files (0 unknown) from version 'for-norm'; labels from real/fake folders, provisional splits from official sets",
+    "audio_deepfake": "4447 files (2274 real, 2173 fake across 8 named generators; 0 unknown)"
+  },
+  "duplicate_clusters": [
+    [
+      "speech_commands_real/forward/c50f55b8_nohash_0.wav",
+      "speech_commands_real/forward/c50f55b8_nohash_2.wav"
+    ],
+    [
+      "speech_commands_real/house/b66f4f93_nohash_1.wav",
+      "speech_commands_real/house/b66f4f93_nohash_0.wav"
+    ],
+    [
+      "speech_commands_real/one/c1d39ce8_nohash_0.wav",
+      "speech_commands_real/one/c1d39ce8_nohash_2.wav"
+    ],
+    [
+      "speech_commands_real/left/c1d39ce8_nohash_5.wav",
+      "speech_commands_real/left/c1d39ce8_nohash_2.wav"
+    ],
+    [
+      "speech_commands_real/stop/b5cf6ea8_nohash_0.wav",
+      "speech_commands_real/stop/b5cf6ea8_nohash_5.wav"
+    ],
+    [
+      "speech_commands_real/bed/c50f55b8_nohash_2.wav",
+      "speech_commands_real/bed/c50f55b8_nohash_3.wav"
+    ],
+    [
+      "speech_commands_real/follow/ddedba85_nohash_0.wav",
+      "speech_commands_real/follow/ddedba85_nohash_7.wav"
+    ],
+    [
+      "speech_commands_real/zero/c50f55b8_nohash_7.wav",
+      "speech_commands_real/zero/c50f55b8_nohash_8.wav"
+    ],
+    [
+      "speech_commands_real/right/893705bb_nohash_7.wav",
+      "speech_commands_real/right/893705bb_nohash_3.wav"
+    ],
+    [
+      "speech_commands_real/yes/2aca1e72_nohash_4.wav",
+      "speech_commands_real/yes/2aca1e72_nohash_6.wav"
+    ],
+    [
+      "speech_commands_real/on/2aca1e72_nohash_2.wav",
+      "speech_commands_real/on/2aca1e72_nohash_3.wav"
+    ],
+    [
+      "speech_commands_real/yes/c50f55b8_nohash_13.wav",
+      "speech_commands_real/yes/c50f55b8_nohash_0.wav"
+    ],
+    [
+      "speech_commands_real/on/c50f55b8_nohash_18.wav",
+      "speech_commands_real/on/c50f55b8_nohash_6.wav",
+      "speech_commands_real/on/c50f55b8_nohash_3.wav"
+    ],
+    [
+      "speech_commands_real/yes/ddedba85_nohash_2.wav",
+      "speech_commands_real/yes/ddedba85_nohash_5.wav"
+    ]
+  ],
+  "split_summary": {
+    "total": 36489,
+    "by_source_label_split": {
+      "audio_deepfake|fake|eval": 213,
+      "audio_deepfake|fake|holdout": 854,
+      "audio_deepfake|fake|train": 883,
+      "audio_deepfake|fake|validation": 223,
+      "audio_deepfake|real|eval": 528,
+      "audio_deepfake|real|train": 1600,
+      "audio_deepfake|real|validation": 146,
+      "fake_or_real|fake|eval": 1177,
+      "fake_or_real|fake|train": 5632,
+      "fake_or_real|fake|validation": 1191,
+      "fake_or_real|real|eval": 1156,
+      "fake_or_real|real|train": 5642,
+      "fake_or_real|real|validation": 1202,
+      "human_ai_voices|fake|eval": 1,
+      "human_ai_voices|fake|train": 17,
+      "human_ai_voices|fake|validation": 3,
+      "human_ai_voices|real|eval": 2,
+      "human_ai_voices|real|train": 14,
+      "human_ai_voices|real|validation": 5,
+      "speech_commands_real|real|eval": 1142,
+      "speech_commands_real|real|train": 5682,
+      "speech_commands_real|real|validation": 1176,
+      "synthetic_commands|fake|eval": 1251,
+      "synthetic_commands|fake|train": 5576,
+      "synthetic_commands|fake|validation": 1173
+    }
+  },
+  "training_manifest_conversion": {
+    "written": 35635,
+    "excluded_unknown": 0,
+    "excluded_holdout": 854,
+    "manifest": "../../data/multidataset/training_manifest.jsonl"
+  },
+  "note": "Holdout split contains unseen generators (excluded from training/validation/eval; reserved for generalization testing). 'unknown' labels are excluded from supervised training. Provisional FoR splits were overridden by group-aware assignment."
+}

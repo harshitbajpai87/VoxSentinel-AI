@@ -1,0 +1,16 @@
+[project]
+name = "voxsentinel-backend"
+version = "0.1.0"
+description = "VoxSentinel AI FastAPI backend (SIH 2026, SIH26104)"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["B008"]  # FastAPI's Annotated dependencies are idiomatic
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

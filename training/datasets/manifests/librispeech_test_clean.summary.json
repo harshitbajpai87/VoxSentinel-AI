@@ -1,0 +1,11 @@
+{
+  "rows": 5323,
+  "splits": {
+    "train": 4247,
+    "val": 570,
+    "test": 506
+  },
+  "speakers": 80,
+  "seed": "voxsentinel-2026",
+  "speaker_disjoint": true
+}

@@ -1,0 +1,203 @@
+{
+  "report_type": "training_report",
+  "model_name": "VoxSentinel Enhanced MFCC Candidate",
+  "model_version": "0.3.202610241603",
+  "model_mode": "candidate",
+  "candidate": "enhanced-hgb",
+  "artifact_path": "../../data/multidataset/models/candidate_enhanced_hgb/detector.joblib",
+  "trained_at": "2026-10-24T16:03:36Z",
+  "dataset": {
+    "manifest": "../../data/multidataset/training_manifest.jsonl",
+    "sources": [
+      "audio_deepfake",
+      "fake_or_real",
+      "human_ai_voices",
+      "speech_commands_real",
+      "synthetic_commands"
+    ],
+    "summary": {
+      "counts": {
+        "train": {
+          "real": 12937,
+          "synthetic": 12107
+        },
+        "validation": {
+          "real": 2529,
+          "synthetic": 2590
+        },
+        "eval": {
+          "real": 2827,
+          "synthetic": 2641
+        }
+      },
+      "total": 35631
+    }
+  },
+  "split": {
+    "strategy": "manifest partitions; scaler fit on train only; speaker-disjointness enforced between train and validation and against the reserved eval partition; group-aware splits from build_multisource_manifest.py",
+    "seed": 42,
+    "train_n": 25044,
+    "validation_n": 5119,
+    "eval_reserved": 5468
+  },
+  "features": {
+    "target_sample_rate": 16000,
+    "segment_seconds": 4.0,
+    "n_mfcc": 20,
+    "n_fft": 1024,
+    "hop_length": 256,
+    "n_mels": 128,
+    "fmin": 0.0,
+    "fmax": 8000.0,
+    "include_delta_mfcc": true,
+    "include_spectral_shape": true
+  },
+  "classifier": {
+    "type": "CalibratedClassifierCV(sigmoid, frozen)(sklearn.ensemble.HistGradientBoostingClassifier)",
+    "params": {
+      "max_iter": 200,
+      "learning_rate": 0.1,
+      "random_state": 42
+    },
+    "calibrated": true
+  },
+  "environment": {
+    "python": "3.11.17",
+    "numpy": "2.4.6",
+    "scikit_learn": "1.9.1",
+    "librosa": "0.11.0",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36"
+  },
+  "validation_metrics": {
+    "n": 5119,
+    "n_real": 2529,
+    "n_synthetic": 2590,
+    "precision_synthetic": 0.9787316318638825,
+    "recall_synthetic": 0.9772200772200772,
+    "f1_synthetic": 0.9779752704791345,
+    "precision_real": 0.9767074615080932,
+    "recall_real": 0.9782522736259391,
+    "confusion_matrix": {
+      "tn": 2474,
+      "fp": 55,
+      "fn": 59,
+      "tp": 2531
+    },
+    "false_positive_rate": 0.021747726374060895,
+    "false_negative_rate": 0.02277992277992278,
+    "roc_auc": 0.9977658390469778,
+    "note": "Validation metrics are post-calibration; validation was used for calibration.",
+    "operating_points_validation": {
+      "youden_threshold": 0.5736821492916633,
+      "youden_j": 0.9590869466314307,
+      "eer": 0.022393822393819977
+    }
+  },
+  "validation_breakdown": {
+    "by_source": {
+      "audio_deepfake": {
+        "n": 369,
+        "n_real": 146,
+        "n_synthetic": 223,
+        "precision_synthetic": 0.9358288770053476,
+        "recall_synthetic": 0.7847533632286996,
+        "f1_synthetic": 0.8536585365853658,
+        "precision_real": 0.7362637362637363,
+        "recall_real": 0.9178082191780822,
+        "confusion_matrix": {
+          "tn": 134,
+          "fp": 12,
+          "fn": 48,
+          "tp": 175
+        },
+        "false_positive_rate": 0.0821917808219178,
+        "false_negative_rate": 0.21524663677130046,
+        "roc_auc": 0.9352847226488114
+      },
+      "fake_or_real": {
+        "n": 2393,
+        "n_real": 1202,
+        "n_synthetic": 1191,
+        "precision_synthetic": 0.9664758789860998,
+        "recall_synthetic": 0.9924433249370277,
+        "f1_synthetic": 0.9792874896437448,
+        "precision_real": 0.9923076923076923,
+        "recall_real": 0.9658901830282862,
+        "confusion_matrix": {
+          "tn": 1161,
+          "fp": 41,
+          "fn": 9,
+          "tp": 1182
+        },
+        "false_positive_rate": 0.03410981697171381,
+        "false_negative_rate": 0.007556675062972292,
+        "roc_auc": 0.9986602234451117
+      },
+      "human_ai_voices": {
+        "n": 8,
+        "n_real": 5,
+        "n_synthetic": 3,
+        "precision_synthetic": 1.0,
+        "recall_synthetic": 1.0,
+        "f1_synthetic": 1.0,
+        "precision_real": 1.0,
+        "recall_real": 1.0,
+        "confusion_matrix": {
+          "tn": 5,
+          "fp": 0,
+          "fn": 0,
+          "tp": 3
+        },
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.0,
+        "roc_auc": 1.0
+      },
+      "speech_commands_real": {
+        "n": 1176,
+        "note": "single class in this group; metrics not computable"
+      },
+      "synthetic_commands": {
+        "n": 1173,
+        "note": "single class in this group; metrics not computable"
+      }
+    },
+    "by_generator": {
+      "OpenAI": {
+        "n": 105,
+        "note": "single class in this group; metrics not computable"
+      },
+      "PromptTTS2": {
+        "n": 5,
+        "note": "single class in this group; metrics not computable"
+      },
+      "VALLE": {
+        "n": 15,
+        "note": "single class in this group; metrics not computable"
+      },
+      "n/a": {
+        "n": 4896,
+        "n_real": 2529,
+        "n_synthetic": 2367,
+        "precision_synthetic": 0.9771878888428038,
+        "recall_synthetic": 0.9953527672158851,
+        "f1_synthetic": 0.9861866889912098,
+        "precision_real": 0.9955734406438632,
+        "recall_real": 0.9782522736259391,
+        "confusion_matrix": {
+          "tn": 2474,
+          "fp": 55,
+          "fn": 11,
+          "tp": 2356
+        },
+        "false_positive_rate": 0.021747726374060895,
+        "false_negative_rate": 0.004647232784114913,
+        "roc_auc": 0.9995389351707769
+      },
+      "seedtts_files": {
+        "n": 98,
+        "note": "single class in this group; metrics not computable"
+      }
+    }
+  },
+  "note": "Candidate report. Metrics are validation-only; the final verdict comes from evaluate_detector.py on the reserved eval partition, compared against the baseline."
+}

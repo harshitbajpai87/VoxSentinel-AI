@@ -1,0 +1,180 @@
+{
+  "report_type": "evaluation_report",
+  "model_name": "VoxSentinel MFCC Baseline",
+  "model_version": "0.2.0-multidataset",
+  "evaluated": true,
+  "evaluated_at": "2026-10-24T07:22:05Z",
+  "split": {
+    "partition": "eval",
+    "note": "Held-out partition: never used for training or model selection (the training script only reads train/validation).",
+    "n": 5468,
+    "processed": 5468,
+    "failed": 0,
+    "failed_examples": []
+  },
+  "dataset": {
+    "manifest": "../../data/multidataset/training_manifest.jsonl",
+    "sources": [
+      "audio_deepfake",
+      "fake_or_real",
+      "human_ai_voices",
+      "speech_commands_real",
+      "synthetic_commands"
+    ],
+    "class_distribution": {
+      "real": 2827,
+      "synthetic": 2641
+    },
+    "manifest_summary": {
+      "counts": {
+        "train": {
+          "real": 12937,
+          "synthetic": 12107
+        },
+        "validation": {
+          "real": 2529,
+          "synthetic": 2590
+        },
+        "eval": {
+          "real": 2827,
+          "synthetic": 2641
+        }
+      },
+      "total": 35631
+    }
+  },
+  "metrics": {
+    "positive_class": "synthetic",
+    "definitions": {
+      "false_positive": "a real (bonafide) clip wrongly flagged as synthetic",
+      "false_negative": "a synthetic (spoofed) clip wrongly passed as real",
+      "threshold": "0.5 on the uncalibrated classifier score"
+    },
+    "precision_synthetic": 0.8367729831144465,
+    "recall_synthetic": 0.8443771298750473,
+    "f1_synthetic": 0.840557859027516,
+    "precision_real": 0.853371387798787,
+    "recall_real": 0.8461266360099045,
+    "f1_real": 0.849733570159858,
+    "confusion_matrix": {
+      "tn": 2392,
+      "fp": 435,
+      "fn": 411,
+      "tp": 2230
+    },
+    "false_positive_rate": 0.15387336399009552,
+    "false_negative_rate": 0.15562287012495266,
+    "roc_auc": 0.9216214018899007,
+    "eer": 0.15524422567208718
+  },
+  "breakdown": {
+    "by_source": {
+      "audio_deepfake": {
+        "n": 741,
+        "real": 528,
+        "synthetic": 213,
+        "precision_synthetic": 0.6395939086294417,
+        "recall_synthetic": 0.5915492957746479,
+        "f1_synthetic": 0.6146341463414634,
+        "confusion_matrix": {
+          "tn": 457,
+          "fp": 71,
+          "fn": 87,
+          "tp": 126
+        },
+        "false_positive_rate": 0.13446969696969696,
+        "false_negative_rate": 0.4084507042253521,
+        "roc_auc": 0.7983265756153081
+      },
+      "fake_or_real": {
+        "n": 2331,
+        "real": 1155,
+        "synthetic": 1176,
+        "precision_synthetic": 0.8138718173836699,
+        "recall_synthetic": 0.7882653061224489,
+        "f1_synthetic": 0.8008639308855292,
+        "confusion_matrix": {
+          "tn": 943,
+          "fp": 212,
+          "fn": 249,
+          "tp": 927
+        },
+        "false_positive_rate": 0.18354978354978355,
+        "false_negative_rate": 0.21173469387755103,
+        "roc_auc": 0.8861611744264806
+      },
+      "human_ai_voices": {
+        "n": 3,
+        "real": 2,
+        "synthetic": 1,
+        "precision_synthetic": 0.0,
+        "recall_synthetic": 0.0,
+        "f1_synthetic": 0.0,
+        "confusion_matrix": {
+          "tn": 2,
+          "fp": 0,
+          "fn": 1,
+          "tp": 0
+        },
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "roc_auc": 0.0
+      },
+      "speech_commands_real": {
+        "n": 1142,
+        "real": 1142,
+        "synthetic": 0,
+        "note": "single class in this group; metrics not computable"
+      },
+      "synthetic_commands": {
+        "n": 1251,
+        "real": 0,
+        "synthetic": 1251,
+        "note": "single class in this group; metrics not computable"
+      }
+    },
+    "by_generator": {
+      "OpenAI": {
+        "n": 87,
+        "real": 0,
+        "synthetic": 87,
+        "note": "single class in this group; metrics not computable"
+      },
+      "PromptTTS2": {
+        "n": 5,
+        "real": 0,
+        "synthetic": 5,
+        "note": "single class in this group; metrics not computable"
+      },
+      "VALLE": {
+        "n": 23,
+        "real": 0,
+        "synthetic": 23,
+        "note": "single class in this group; metrics not computable"
+      },
+      "n/a": {
+        "n": 5255,
+        "real": 2827,
+        "synthetic": 2428,
+        "precision_synthetic": 0.828672705789681,
+        "recall_synthetic": 0.8665568369028006,
+        "f1_synthetic": 0.8471914636601571,
+        "confusion_matrix": {
+          "tn": 2392,
+          "fp": 435,
+          "fn": 324,
+          "tp": 2104
+        },
+        "false_positive_rate": 0.15387336399009552,
+        "false_negative_rate": 0.13344316309719934,
+        "roc_auc": 0.9338412134343518
+      },
+      "seedtts_files": {
+        "n": 98,
+        "real": 0,
+        "synthetic": 98,
+        "note": "single class in this group; metrics not computable"
+      }
+    }
+  }
+}
