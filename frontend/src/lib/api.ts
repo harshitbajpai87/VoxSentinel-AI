@@ -30,6 +30,14 @@ const DEFAULT_BASE_URL = ((): string => {
 const BASE_URL_STORAGE_KEY = 'voxsentinel.apiBaseUrl'
 export const REQUEST_TIMEOUT_MS = 6000
 
+/**
+ * A free-tier container host (Render's free web service) stops the instance
+ * after ~15 minutes of inactivity; the next request pays a ~60 s cold start.
+ * The health probe therefore gets its own budget, otherwise the UI reports
+ * "API offline" while the backend is actually booting.
+ */
+export const HEALTH_TIMEOUT_MS = 90000
+
 /** Uploads can legitimately take longer; analysis gets its own timeout. */
 export const ANALYZE_TIMEOUT_MS = 120000
 
@@ -111,9 +119,13 @@ function baseCandidates(): string[] {
 
 let preferredBase: string | null = null
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+async function request<T>(
+  path: string,
+  init?: RequestInit,
+  timeoutMs: number = REQUEST_TIMEOUT_MS,
+): Promise<T> {
   const controller = new AbortController()
-  const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs)
   try {
     let response: Response | null = null
     let lastError: unknown = null
@@ -151,7 +163,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  getHealth: () => request<HealthResponse>('/health'),
+  getHealth: () => request<HealthResponse>('/health', undefined, HEALTH_TIMEOUT_MS),
   listModels: () => request<{ models: ModelInfo[] }>('/api/v1/models'),
   listAnalyses: (params: { category?: string; limit?: number; offset?: number } = {}) => {
     const q = new URLSearchParams()
