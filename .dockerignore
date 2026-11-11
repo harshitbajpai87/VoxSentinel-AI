@@ -1,0 +1,15 @@
+# Trim the Render build context: only backend/ source, models and requirements
+# are needed by deploy/render/Dockerfile.
+frontend
+e2e
+training
+evaluation
+verification
+docs
+scripts
+.git
+**/__pycache__
+**/*.pyc
+backend/data
+backend/reports
+backend/.venv
