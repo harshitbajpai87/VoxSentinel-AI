@@ -21,7 +21,7 @@ RUN apt-get update \
 WORKDIR /app
 
 # CPU-only torch keeps the image near 1.5 GB instead of pulling CUDA wheels.
-COPY backend/requirements.txt ./
+COPY backend/requirements*.txt ./
 RUN pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
 
 # Application code plus the trained artifacts that ship in the repo.
