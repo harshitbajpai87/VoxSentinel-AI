@@ -15,8 +15,11 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-import joblib
-
+from app.services.artifact_compat import (
+    ArtifactLoadError,
+    dependency_fingerprint,
+    load_artifact,
+)
 from app.services.detector import TrainedVoiceDetector
 from app.services.features import FeatureConfig, feature_names
 from app.services.features_enhanced import EnhancedFeatureConfig, enhanced_feature_names
@@ -56,6 +59,28 @@ REQUIRED_KEYS = (
 def _invalid(reason: str, path: Path) -> None:
     """Log why an artifact was refused. The API falls back to NullVoiceDetector."""
     logger.warning("Detector artifact %s rejected: %s", path, reason)
+    _LAST_STATUS.update({"path": str(path), "loaded": False, "error": reason})
+
+
+# Result of the last load attempt, reported by /health so an operator sees the
+# real reason instead of inferring it from a degraded model.
+_LAST_STATUS: dict[str, object] = {"path": None, "loaded": False, "error": None}
+
+
+def artifact_status() -> dict:
+    """The last artifact load attempt, plus the versions that decide loading.
+
+    The fingerprint makes an ImportError actionable: comparing these numbers
+    with the environment that trained the artifact names the mismatch.
+    """
+    status = dict(_LAST_STATUS)
+    status["dependencies"] = dependency_fingerprint()
+    return status
+
+
+def reset_artifact_status() -> None:
+    """Forget the previous attempt (tests and explicit reloads)."""
+    _LAST_STATUS.update({"path": None, "loaded": False, "error": None})
 
 
 def _validate_fitted(obj: object, name: str, expected_features: int) -> bool:
@@ -125,9 +150,16 @@ def load_detector_from_path(path: str | Path) -> TrainedVoiceDetector | None:
         return None
 
     try:
-        artifact = joblib.load(artifact_path)
+        artifact = load_artifact(artifact_path)
+    except ArtifactLoadError as exc:
+        # Version / missing-module problems: report the actionable detail, not
+        # just the exception class.
+        _invalid(f"could not load artifact: {exc.detail}", artifact_path)
+        return None
     except Exception as exc:  # noqa: BLE001 - any failure means "no model"
-        _invalid(f"could not load artifact ({type(exc).__name__})", artifact_path)
+        _invalid(
+            f"could not load artifact ({type(exc).__name__}: {exc})", artifact_path
+        )
         return None
 
     if not isinstance(artifact, dict):
@@ -195,6 +227,7 @@ def load_detector_from_path(path: str | Path) -> TrainedVoiceDetector | None:
         artifact["model_name"],
         artifact["model_version"],
     )
+    _LAST_STATUS.update({"path": str(artifact_path), "loaded": True, "error": None})
     return TrainedVoiceDetector(
         classifier=classifier,
         scaler=scaler,

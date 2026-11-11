@@ -1,3 +1,4 @@
+import { extensionOf, isKnownAudioExtension, toModelWav } from './audio/transcode'
 import type {
   AnalysisListResponse,
   AnalysisRecord,
@@ -14,8 +15,18 @@ import type {
   RetentionPolicy,
   SpeakerVerifyResponse,
 } from './types'
+import type { PipelineCapabilities } from './unified'
 
-const DEFAULT_BASE_URL = 'http://localhost:8000'
+/**
+ * Local development talks to uvicorn on :8000. Anywhere else (a static or
+ * serverless deployment on the same domain as the API) the sane default is the
+ * page's own origin, so a deployed build reaches /api without configuration.
+ */
+const DEFAULT_BASE_URL = ((): string => {
+  const host = typeof window !== 'undefined' ? window.location?.hostname ?? '' : ''
+  const isLocal = host === '' || host === 'localhost' || host === '127.0.0.1' || host === '[::1]'
+  return isLocal ? 'http://localhost:8000' : window.location.origin
+})()
 const BASE_URL_STORAGE_KEY = 'voxsentinel.apiBaseUrl'
 export const REQUEST_TIMEOUT_MS = 6000
 
@@ -83,29 +94,55 @@ export function getBaseUrlOrigin(): string {
   }
 }
 
+/**
+ * Bases worth trying, in order. The configured base wins, but the page's own
+ * origin is always a fallback: a stale override saved in Settings (for example
+ * a laptop's http://localhost:8000) otherwise makes the whole app look offline
+ * even though the deployed API is healthy. Without this, the UI shows
+ * "could not reach the backend" while the same request works from curl.
+ */
+function baseCandidates(): string[] {
+  const configured = getConfiguredBaseUrl()
+  const sameOrigin = typeof window !== 'undefined' ? window.location.origin : ''
+  const list = [preferredBase ?? configured, configured]
+  if (sameOrigin) list.push(sameOrigin)
+  return [...new Set(list.filter(Boolean))]
+}
+
+let preferredBase: string | null = null
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const controller = new AbortController()
   const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
   try {
-    let response: Response
-    try {
-      response = await fetch(`${getConfiguredBaseUrl()}${path}`, {
-        ...init,
-        signal: controller.signal,
-      })
-    } catch {
-      // Fetch rejects on network failure, CORS block, or our abort timeout.
-      throw new ApiUnavailableError()
+    let response: Response | null = null
+    let lastError: unknown = null
+    for (const base of baseCandidates()) {
+      try {
+        response = await fetch(`${base}${path}`, { ...init, signal: controller.signal })
+        preferredBase = base
+        break
+      } catch (err) {
+        // Fetch rejects on network failure, CORS block, or our abort timeout.
+        lastError = err
+      }
+    }
+    if (!response) {
+      throw lastError instanceof DOMException
+        ? lastError
+        : new ApiUnavailableError()
     }
     if (!response.ok) {
       let code: string | null = null
+      let message = `Backend returned ${response.status} ${response.statusText}`
       try {
-        const body = (await response.json()) as { error?: { code?: string } }
+        const body = (await response.json()) as { error?: { code?: string; message?: string } }
         code = body?.error?.code ?? null
+        if (body?.error?.message) message = body.error.message
       } catch {
-        // Non-JSON error body; keep the safe status text only.
+        // Non-JSON error body (a proxy/platform page); keep the status text.
       }
-      throw new ApiError(`Backend returned ${response.status} ${response.statusText}`, response.status, code)
+      throw new ApiError(message, response.status, code)
     }
     return (await response.json()) as T
   } finally {
@@ -151,9 +188,22 @@ export async function verifySpeakers(
   test: File,
   opts: { consent: boolean; referenceAuthorized: boolean },
 ): Promise<SpeakerVerifyResponse> {
+  const policy = await getUploadPolicy()
+  // Each recording is prepared and size-checked independently, so the error
+  // names the offending file instead of "the request is too large".
+  const [refFile, testFile] = await Promise.all([
+    prepareUpload(reference, policy).catch((err: unknown) => {
+      if (err instanceof ApiError) throw new ApiError(`Reference recording: ${err.message}`, err.status, err.code)
+      throw err
+    }),
+    prepareUpload(test, policy).catch((err: unknown) => {
+      if (err instanceof ApiError) throw new ApiError(`Comparison recording: ${err.message}`, err.status, err.code)
+      throw err
+    }),
+  ])
   const form = new FormData()
-  form.append('reference', reference, reference.name)
-  form.append('test', test, test.name)
+  form.append('reference', refFile, refFile.name)
+  form.append('test', testFile, testFile.name)
   form.append('consent', String(opts.consent))
   form.append('reference_authorized', String(opts.referenceAuthorized))
   const controller = new AbortController()
@@ -204,6 +254,105 @@ export async function exportAnalysesCsv(): Promise<Blob> {
 }
 
 /* ------------------------------------------------------------------ */
+/* Upload preparation (shared by every audio workflow)                 */
+/* ------------------------------------------------------------------ */
+
+/** What this deployment can decode, and how large an upload it accepts. */
+export interface UploadPolicy {
+  /** Effective ceiling in bytes (already min(configured, hosting limit)). */
+  maxBytes: number
+  /** Extensions the SERVER decodes itself (ffmpeg-aware). */
+  decodableExtensions: string[]
+  ffmpeg: boolean
+}
+
+const FALLBACK_DECODABLE = ['wav', 'mp3', 'flac', 'ogg', 'oga']
+let cachedPolicy: UploadPolicy | null = null
+
+/** Cached capability lookup; falls back to libsndfile-only coverage on failure. */
+export async function getUploadPolicy(force = false): Promise<UploadPolicy> {
+  if (cachedPolicy && !force) return cachedPolicy
+  try {
+    const health = await request<{
+      effective_max_upload_bytes?: number
+      max_upload_bytes?: number
+      audio?: { decodable_extensions?: string[]; decoders?: { ffmpeg?: boolean } }
+    }>('/health')
+    const extensions = health?.audio?.decodable_extensions
+    cachedPolicy = {
+      maxBytes:
+        health?.effective_max_upload_bytes ||
+        health?.max_upload_bytes ||
+        DEFAULT_MAX_UPLOAD_BYTES,
+      decodableExtensions:
+        Array.isArray(extensions) && extensions.length ? extensions : FALLBACK_DECODABLE,
+      ffmpeg: Boolean(health?.audio?.decoders?.ffmpeg),
+    }
+  } catch {
+    cachedPolicy = {
+      maxBytes: DEFAULT_MAX_UPLOAD_BYTES,
+      decodableExtensions: FALLBACK_DECODABLE,
+      ffmpeg: false,
+    }
+  }
+  return cachedPolicy
+}
+
+/** The one size constant the UI talks about (mirrors the backend default). */
+export const DEFAULT_MAX_UPLOAD_BYTES = 25 * 1024 * 1024
+
+function describeBytes(bytes: number): string {
+  const mb = bytes / (1024 * 1024)
+  return `${mb >= 10 ? mb.toFixed(0) : mb.toFixed(1)} MB`
+}
+
+/**
+ * Decide what actually goes over the wire for one recording.
+ *
+ * * the server decodes this container -> send the ORIGINAL bytes untouched
+ *   (smallest body, no re-encoding, no size explosion)
+ * * the server cannot decode it (no ffmpeg) -> convert to 16 kHz mono WAV in
+ *   the browser and re-check the size BEFORE uploading
+ *
+ * A converted file that no longer fits the deployment limit fails here with a
+ * message that names both sizes, instead of a generic "too large" from the API.
+ */
+export async function prepareUpload(file: File, policy?: UploadPolicy): Promise<File> {
+  const effective = policy ?? (await getUploadPolicy())
+  const ext = extensionOf(file.name)
+  const serverDecodes = effective.decodableExtensions.includes(ext)
+
+  if (serverDecodes) {
+    if (file.size > effective.maxBytes) {
+      throw new ApiError(
+        `\u201c${file.name}\u201d is ${describeBytes(file.size)}, above this deployment's ${describeBytes(
+          effective.maxBytes,
+        )} upload limit.`,
+        413,
+        'file_too_large',
+      )
+    }
+    return file
+  }
+
+  if (!isKnownAudioExtension(file.name)) return file // let the server reject it with its own message
+
+  const converted = await toModelWav(file)
+  if (converted.size > effective.maxBytes) {
+    throw new ApiError(
+      `\u201c${file.name}\u201d is ${describeBytes(file.size)} in ${ext.toUpperCase()} and converts to ` +
+        `${describeBytes(converted.size)} of WAV, above this deployment's ${describeBytes(
+          effective.maxBytes,
+        )} upload limit. Deploy the container backend (which decodes ${ext.toUpperCase()} directly) ` +
+        'or upload a shorter clip.',
+      413,
+      'file_too_large',
+    )
+  }
+  return converted
+}
+
+/* ------------------------------------------------------------------ */
 /* POST /api/v1/analyze                                                */
 /* ------------------------------------------------------------------ */
 
@@ -229,7 +378,44 @@ export interface AnalyzeOptions {
  * The audio is only sent when the user explicitly calls this — selection and
  * preview alone never transmit anything.
  */
-export function analyzeAudio(file: File, options: AnalyzeOptions = {}): Promise<AnalysisRecord> {
+export async function analyzeAudio(
+  file: File,
+  options: AnalyzeOptions = {},
+): Promise<AnalysisRecord> {
+  const bases = baseCandidates()
+  const attempt = (index: number, upload: File): Promise<AnalysisRecord> =>
+    analyzeWithBase(bases[index], upload, options).catch((err: unknown) => {
+      // A transport failure (not an HTTP error) may just mean this base is
+      // wrong: try the next candidate before telling the user it is offline.
+      if (err instanceof ApiUnavailableError && index + 1 < bases.length) {
+        return attempt(index + 1, upload)
+      }
+      throw err
+    })
+
+  // Send the original when the server can decode it; convert only when it
+  // cannot. Size is re-validated after any conversion, so a big compressed clip
+  // can never silently become an oversized WAV upload.
+  const upload = await prepareUpload(file)
+  try {
+    return await attempt(0, upload)
+  } catch (err) {
+    // The deployment lost/gained ffmpeg between the cached capability probe and
+    // this request (or the probe failed): convert once and retry, instead of
+    // showing "this format is not supported" for a file we can convert.
+    if (err instanceof ApiError && err.code === 'decoder_unavailable' && upload === file) {
+      const converted = await toModelWav(file)
+      return attempt(0, converted)
+    }
+    throw err
+  }
+}
+
+function analyzeWithBase(
+  base: string,
+  file: File,
+  options: AnalyzeOptions = {},
+): Promise<AnalysisRecord> {
   const timeoutMs = options.timeoutMs ?? ANALYZE_TIMEOUT_MS
 
   return new Promise<AnalysisRecord>((resolve, reject) => {
@@ -254,7 +440,7 @@ export function analyzeAudio(file: File, options: AnalyzeOptions = {}): Promise<
       fn()
     }
 
-    xhr.open('POST', `${getConfiguredBaseUrl()}/api/v1/analyze`)
+    xhr.open('POST', `${base}/api/v1/analyze`)
     xhr.responseType = 'json'
 
     xhr.upload.onprogress = (event) => {
@@ -274,13 +460,16 @@ export function analyzeAudio(file: File, options: AnalyzeOptions = {}): Promise<
       settle(() => reject(new ApiError('The request was aborted.', 0, 'aborted')))
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
+        preferredBase = base
         settle(() => resolve(xhr.response as AnalysisRecord))
       } else {
-        const body = (xhr.response ?? {}) as { error?: { code?: string } }
+        const body = (xhr.response ?? {}) as {
+          error?: { code?: string; message?: string }
+        }
         settle(() =>
           reject(
             new ApiError(
-              `Backend returned ${xhr.status} ${xhr.statusText}`,
+              body?.error?.message ?? `Backend returned ${xhr.status} ${xhr.statusText}`,
               xhr.status,
               body?.error?.code ?? null,
             ),
@@ -297,9 +486,24 @@ export function analyzeAudio(file: File, options: AnalyzeOptions = {}): Promise<
  * Maps an analysis failure to a safe, friendly message. Exported for tests.
  * 4xx codes mean the request/file was the problem; 5xx means the backend.
  */
-export function mapAnalyzeError(status: number, code: string | null): string {
+/** True when a server message is specific enough to show instead of a generic one. */
+function isSpecificMessage(message: string | null | undefined): boolean {
+  if (!message) return false
+  return !/^Backend returned \d+/i.test(message) && message.trim().length > 8
+}
+
+export function mapAnalyzeError(
+  status: number,
+  code: string | null,
+  serverMessage?: string | null,
+): string {
+  // A specific explanation from the API (real limit, real format, real reason)
+  // always beats a client-side generic phrase.
+  if (isSpecificMessage(serverMessage)) return serverMessage as string
   if (status === 413 || code === 'file_too_large')
     return 'The backend rejected the file as too large.'
+  if (code === 'decoder_unavailable')
+    return 'This server cannot decode that audio format (its ffmpeg decoder is missing). Try WAV, MP3, FLAC or OGG.'
   if (status === 415 || code === 'unsupported_media_type')
     return 'The backend does not accept this audio format.'
   if (status === 422 || code === 'invalid_audio')
@@ -316,13 +520,36 @@ export function mapAnalyzeError(status: number, code: string | null): string {
 
 export async function analyzeProtection(
   file: File,
-  opts: { consent: boolean; profileId?: string | null },
+  opts: { consent: boolean; profileId?: string | null; language?: string | null },
 ): Promise<ProtectionAnalysis> {
+  // Same preparation as Analyze Audio: the original is uploaded when the server
+  // can decode it, otherwise it is converted and re-size-checked first.
+  const uploadable = await prepareUpload(file)
   const form = new FormData()
-  form.append('file', file, file.name)
+  form.append('file', uploadable, uploadable.name)
   form.append('consent', String(opts.consent))
   if (opts.profileId) form.append('profile_id', opts.profileId)
-  return uploadJson<ProtectionAnalysis>('/api/v1/protection/analyze', form, PROTECTION_TIMEOUT_MS)
+  if (opts.language) form.append('language', opts.language)
+  // Unified pipeline: transcription, speaker verification, acoustic forensics,
+  // scam risk, LLM reasoning, badges and the structured explanation in one call.
+  return uploadJson<ProtectionAnalysis>('/api/analyze', form, PROTECTION_TIMEOUT_MS)
+}
+
+/** Analyze pasted text with no audio (same content, LLM and risk layers). */
+export async function analyzeProtectionText(
+  text: string,
+  opts: { consent: boolean; language?: string | null; profileId?: string | null },
+): Promise<ProtectionAnalysis> {
+  return request<ProtectionAnalysis>('/api/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      text,
+      consent: opts.consent,
+      language: opts.language ?? undefined,
+      profile_id: opts.profileId ?? undefined,
+    }),
+  })
 }
 
 async function uploadJson<T>(
@@ -363,6 +590,7 @@ async function uploadJson<T>(
 
 export const protectionApi = {
   analyze: analyzeProtection,
+  analyzeText: analyzeProtectionText,
   listAnalyses: (limit = 50) =>
     request<{ analyses: ProtectionAnalysisSummary[]; count: number }>(`/api/v1/protection/analyses?limit=${limit}`),
   getAnalysis: (id: string) =>
@@ -385,4 +613,6 @@ export const protectionApi = {
     request<{ transcription: Record<string, unknown>; speaker_verifier_ready: boolean; detector_ready: boolean }>(
       '/api/v1/protection/capabilities',
     ),
+  /** Which model families are actually live on the backend right now. */
+  pipelineCapabilities: () => request<PipelineCapabilities>('/api/capabilities'),
 }

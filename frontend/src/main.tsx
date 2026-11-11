@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { ApiStatusProvider } from './lib/apiStatus'
 import './index.css'
+import './pages/landing.css'
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>

@@ -1,0 +1,50 @@
+
+ RUN  v2.1.9 /app/conversations/da19eb1ac6ea415a8007e024/work/VoxSentinel/frontend
+
+ ✓ src/lib/upload.test.ts (13 tests) 14ms
+ ✓ src/lib/api.test.ts (15 tests) 536ms
+   ✓ analyzeAudio > rejects with ApiUnavailableError after every candidate base fails 345ms
+stderr | src/pages/AnalyzeAudioPage.test.tsx > AnalyzeAudioPage: selection & validation > starts empty with the dropzone and no analyze button enabled
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/pages/AnalyzeAudioPage.test.tsx (20 tests) 1849ms
+ ✓ src/lib/audio/validation.test.ts (17 tests) 43ms
+stderr | src/pages/EvaluationPage.test.tsx > EvaluationPage > shows the honest empty state when no run has been recorded
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/lib/audio/transcode.test.ts (6 tests) 6ms
+stderr | src/pages/HistoryPage.test.tsx > HistoryPage > loads records and passes the server-side category filter
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/pages/HistoryPage.test.tsx (3 tests) 433ms
+ ✓ src/pages/EvaluationPage.test.tsx (3 tests) 3582ms
+   ✓ EvaluationPage > runs a job, polls it, and renders the real metric tiles on completion 2284ms
+   ✓ EvaluationPage > surfaces a failed job honestly 1225ms
+stderr | src/pages/LandingPage.test.tsx > LandingPage > offers the existing analysis and recording routes without claiming a detection result
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/pages/LandingPage.test.tsx (6 tests) 2525ms
+   ✓ LandingPage > offers the existing analysis and recording routes without claiming a detection result 454ms
+   ✓ LandingPage > switches tool descriptions and destination links 1208ms
+   ✓ LandingPage > supports keyboard navigation through the toolkit tabs 389ms
+   ✓ LandingPage > lets the visitor pause decorative motion 320ms
+ ✓ src/components/audio/AnalysisResultPanel.test.tsx (3 tests) 118ms
+ ✓ src/components/audio/AudioDropzone.test.tsx (4 tests) 152ms
+ ✓ src/lib/audio/recorderSupport.test.ts (6 tests) 4ms
+ ✓ src/components/audio/WaveformCanvas.test.tsx (3 tests) 122ms
+stderr | src/components/layout/Sidebar.test.tsx > Sidebar navigation > renders the evaluation-only footer note
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/components/layout/Sidebar.test.tsx (3 tests) 185ms
+ ✓ src/components/audio/WindowScoresChart.test.tsx (2 tests) 60ms
+
+ Test Files  14 passed (14)
+      Tests  104 passed (104)
+   Start at  06:51:32
+   Duration  23.07s (transform 1.93s, setup 0ms, collect 9.82s, tests 9.63s, environment 25.59s, prepare 5.62s)
+

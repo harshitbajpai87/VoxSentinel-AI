@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import {
   DashboardIcon,
   FingerprintIcon,
@@ -22,9 +22,9 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { status } = useApiStatus()
 
   return (
-    <div className="flex h-full w-64 flex-col border-r border-line bg-surface/60">
+    <div className="app-sidebar flex h-full w-64 flex-col border-r border-line">
       {/* Brand */}
-      <div className="flex items-center gap-3 px-5 py-5">
+      <Link to="/" className="flex items-center gap-3 px-5 py-6" aria-label="VoxSentinel home">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-accent/30 bg-accent/10">
           <ShieldIcon width={18} height={18} className="text-accent" />
         </div>
@@ -36,7 +36,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             <Tag>SIH26104</Tag>
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* Navigation */}
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-2" aria-label="Main navigation">
@@ -80,7 +80,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           </span>
         </div>
         <p className="mt-1.5 text-[11px] leading-relaxed text-ink-faint">
-          Research prototype. Results never constitute proof of authenticity.
+          Research Prototype • For Evaluation Only
         </p>
       </div>
     </div>

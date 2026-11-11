@@ -36,6 +36,14 @@ GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models"
 # Live-verified default (Oct 2026). Override with GEMINI_MODEL.
 # NOTE: "gemini-2.5-flash" is retired for new API keys; the API rejects it with 404.
 DEFAULT_MODEL = "gemini-3.8-flash"
+# A busy primary model (503/429) must not cost the whole contextual layer when a
+# sibling model can serve the same contract. Tried in order; the model that
+# answered is reported back so the UI never credits the wrong one.
+FALLBACK_MODELS: tuple[str, ...] = tuple(
+    m.strip()
+    for m in os.environ.get("GEMINI_FALLBACK_MODELS", "gemini-3.1-flash-lite").split(",")
+    if m.strip()
+)
 MAX_TRANSCRIPT_CHARS = 6000
 REQUEST_TIMEOUT_S = 60.0  # first-call cold start can exceed 30s
 RETRY_STATUSES = {429, 500, 502, 503, 504}
@@ -445,14 +453,73 @@ class GeminiScamClassifier:
         return self._config.configured
 
     # ----------------------------------------------------------------- request
-    def _post(self, payload: dict[str, Any]) -> httpx.Response:
-        url = f"{GEMINI_ENDPOINT}/{self._config.model}:generateContent"
+    def _post(self, payload: dict[str, Any], model: str | None = None) -> httpx.Response:
+        url = f"{GEMINI_ENDPOINT}/{model or self._config.model}:generateContent"
         headers = {
             "x-goog-api-key": self._config.api_key or "",
             "Content-Type": "application/json",
         }
         with httpx.Client(timeout=self._config.timeout_s, transport=self._transport) as client:
             return client.post(url, headers=headers, json=payload)
+
+    def _attempt(
+        self, payload: dict[str, Any], model: str, started: float
+    ) -> tuple[httpx.Response | None, dict[str, Any] | None]:
+        """One model, up to three tries. Returns (response, final_failure).
+
+        final_failure carries "_final": True when trying another model cannot
+        help (bad credentials) and the classifier must stop.
+        """
+        for attempt in range(3):
+            try:
+                response = self._post(payload, model)
+            except httpx.TimeoutException:
+                if attempt < 2:
+                    time.sleep(0.4 * (attempt + 1))
+                    continue
+                return None, _status(
+                    "failed",
+                    code="gemini_timeout",
+                    latency_ms=int((time.perf_counter() - started) * 1000),
+                    detail="The Gemini request timed out.",
+                )
+            except httpx.HTTPError:
+                if attempt < 2:
+                    time.sleep(0.4 * (attempt + 1))
+                    continue
+                return None, _status(
+                    "failed",
+                    code="gemini_unreachable",
+                    detail="The server could not reach the Gemini API.",
+                )
+            status = response.status_code
+            if status in RETRY_STATUSES and attempt < 2:
+                time.sleep(0.4 * (attempt + 1))
+                continue
+            if status in RETRY_STATUSES or status == 429:
+                return None, _status(
+                    "failed",
+                    code="gemini_rate_limited",
+                    detail="Gemini rate limit or quota reached. Rule-based fallback used.",
+                )
+            if status in PERMANENT_STATUSES:
+                code = "gemini_auth_failed" if status in (401, 403) else "gemini_bad_request"
+                detail = (
+                    "Gemini rejected the credentials. Check GEMINI_API_KEY on the server."
+                    if status in (401, 403)
+                    else "Gemini rejected the request (check GEMINI_MODEL)."
+                )
+                failure = _status("failed", code=code, detail=detail)
+                failure["_final"] = True
+                return None, failure
+            if status >= 400:
+                return None, _status(
+                    "failed",
+                    code="gemini_error",
+                    detail="Gemini returned an error. Rule-based fallback used.",
+                )
+            return response, None
+        return None, _status("failed", code="gemini_error", detail="Gemini failed after retries.")
 
     def _call(self, transcript: str, language: str | None) -> tuple[dict[str, Any] | None, dict[str, Any]]:
         if not self._config.configured:
@@ -487,57 +554,24 @@ class GeminiScamClassifier:
         }
 
         started = time.perf_counter()
-        last_error = ""
-        for attempt in range(3):
-            try:
-                response = self._post(payload)
-            except httpx.TimeoutException:
-                last_error = "timeout"
-                if attempt < 2:
-                    time.sleep(0.4 * (attempt + 1))
-                    continue
-                return None, _status(
-                    "failed",
-                    code="gemini_timeout",
-                    latency_ms=int((time.perf_counter() - started) * 1000),
-                    detail="The Gemini request timed out.",
-                )
-            except httpx.HTTPError:
-                last_error = "network"
-                if attempt < 2:
-                    time.sleep(0.4 * (attempt + 1))
-                    continue
-                return None, _status(
-                    "failed", code="gemini_unreachable", detail="The server could not reach the Gemini API."
-                )
-
-            status = response.status_code
-            if status in RETRY_STATUSES and attempt < 2:
-                time.sleep(0.4 * (attempt + 1))
-                continue
-            if status == 429:
-                return None, _status(
-                    "failed",
-                    code="gemini_rate_limited",
-                    detail="Gemini rate limit or quota reached. Rule-based fallback used.",
-                )
-            if status in PERMANENT_STATUSES:
-                code = "gemini_auth_failed" if status in (401, 403) else "gemini_bad_request"
-                detail = (
-                    "Gemini rejected the credentials. Check GEMINI_API_KEY on the server."
-                    if status in (401, 403)
-                    else "Gemini rejected the request (check GEMINI_MODEL)."
-                )
-                return None, _status("failed", code=code, detail=detail)
-            if status >= 400:
-                return None, _status(
-                    "failed",
-                    code="gemini_error",
-                    detail="Gemini returned an error. Rule-based fallback used.",
-                )
-            break
-        else:  # pragma: no cover - defensive
-            return None, _status("failed", code="gemini_error", detail=f"Gemini failed ({last_error}).")
+        failure: dict | None = None
+        for model in (self._config.model, *FALLBACK_MODELS):
+            response, failure = self._attempt(payload, model, started)
+            if response is not None:
+                self._answered_by = model
+                break
+            if failure is not None and failure.get("_final"):
+                failure.pop("_final", None)
+                return None, failure
+        else:
+            # Every model refused. Report the last real reason (rate limit,
+            # timeout, outage) rather than a generic failure.
+            if failure is not None:
+                failure.pop("_final", None)
+                return None, failure
+            return None, _status(
+                "failed", code="gemini_error", detail="Gemini failed after retrying the fallback models."
+            )
 
         latency_ms = int((time.perf_counter() - started) * 1000)
         try:

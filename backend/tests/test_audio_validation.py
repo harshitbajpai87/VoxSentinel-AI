@@ -96,10 +96,28 @@ def test_measure_extracts_metadata_and_flags_short_audio():
 
 
 def test_measure_rejects_silence():
+    # A long-enough clip of pure silence is rejected as silent.
+    with pytest.raises(AudioValidationError) as exc:
+        measure(np.zeros(8000 * 4, dtype=np.float32), 8000, 1, LIMITS)
+    assert exc.value.code == "invalid_audio"
+    assert "silent" in exc.value.message.lower()
+
+
+def test_short_silent_clip_reports_short_not_silent():
+    # 1 s of silence is both short and silent; the message must name the real
+    # fix (upload a longer clip) instead of blaming silence alone.
     with pytest.raises(AudioValidationError) as exc:
         measure(np.zeros(8000, dtype=np.float32), 8000, 1, LIMITS)
     assert exc.value.code == "invalid_audio"
-    assert "silent" in exc.value.message.lower()
+    assert "only 1.0 s" in exc.value.message
+    assert "at least" in exc.value.message.lower()
+
+
+def test_zero_length_audio_reports_undecodable():
+    with pytest.raises(AudioValidationError) as exc:
+        measure(np.zeros(100, dtype=np.float32), 8000, 1, LIMITS)
+    assert exc.value.code == "invalid_audio"
+    assert "decodable audio frames" in exc.value.message
 
 
 def test_measure_flags_quiet_and_clipped_audio():

@@ -77,14 +77,25 @@ def test_server_never_writes_uploads_to_disk(settings, tmp_path, client_with_det
 
 def test_health_and_models_payloads_match_contract_fields(client):
     health = client.get("/health").json()
-    assert set(health.keys()) == {
+    # The six original contract fields are REQUIRED and unchanged. Health also
+    # carries an ADDITIVE capability block (decoders, upload ceilings, optional
+    # services) so the UI can tell "no ffmpeg" apart from "backend offline";
+    # extra keys are allowed, missing core keys are not.
+    assert {
         "status",
         "backend_ready",
         "model_ready",
         "speaker_model_ready",
         "version",
         "mode",
-    }
+    } <= set(health.keys())
+    assert {
+        "audio_decoder_ready",
+        "max_upload_bytes",
+        "effective_max_upload_bytes",
+        "audio",
+        "services",
+    } <= set(health.keys())
     models = client.get("/api/v1/models").json()
     assert set(models.keys()) == {"models"}
     for model in models["models"]:

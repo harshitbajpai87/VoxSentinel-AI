@@ -151,6 +151,15 @@ class SimilarityThresholds:
         return self._data.get("eer_threshold")  # type: ignore[return-value]
 
     @property
+    def calibration_pairs(self) -> int:
+        if not self.is_ready():
+            return 0
+        try:
+            return int(self._data.get("calibration_pairs") or 0)
+        except (TypeError, ValueError):
+            return 0
+
+    @property
     def calibrated_on(self) -> str | None:
         if not self.is_ready():
             return None

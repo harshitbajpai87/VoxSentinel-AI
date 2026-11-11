@@ -72,7 +72,7 @@ export default function HistoryPage() {
     <div className="animate-fade-in">
       <PageHeader
         title="Analysis History"
-        subtitle="Every analysis recorded by the backend, newest first. Filterable, sortable and exportable."
+        subtitle="Chronological log of past audio analyses. Filter, sort, or export records."
         actions={
           <Button
             variant="secondary"
@@ -85,10 +85,7 @@ export default function HistoryPage() {
         }
       />
 
-      <Card
-        title="Filters"
-        subtitle="Server-side filtering: the database does the work, the table shows only matches."
-      >
+      <Card title="Filters">
         <div className="flex flex-wrap items-center gap-3">
           <select
             value={category}
@@ -116,7 +113,7 @@ export default function HistoryPage() {
       <div className="mt-6">
         {!online && (
           <ErrorState
-            description="History is stored by the Python backend. Start it (Phase 4) and this page fills with your real analysis records."
+            description="Backend connection offline. Start the service to load recorded analysis history."
             onRetry={() => void refresh()}
           />
         )}

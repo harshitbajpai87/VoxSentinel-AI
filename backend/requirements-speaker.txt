@@ -1,0 +1,17 @@
+# Speaker verification stack (ECAPA-TDNN via speechbrain).
+#
+#   pip install -r backend/requirements-speaker.txt
+#   python backend/scripts/download_speaker_model.py
+#
+# Needs ~1.5 GB of disk for the wheels plus the 85 MB ECAPA checkpoint. It does
+# NOT fit a Vercel serverless function (250 MB unzipped bundle limit): run this
+# on a container host (Docker/Render/Fly/Railway) or locally.
+#
+# CPU-only torch keeps the image small. CUDA users can install torch from the
+# official CUDA index instead; the versions below are what the artifact and the
+# tests were verified against.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.11.0
+torchaudio==2.11.0
+speechbrain==1.1.2
+huggingface_hub>=0.40

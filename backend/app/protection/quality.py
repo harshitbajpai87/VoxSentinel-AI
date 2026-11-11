@@ -238,10 +238,27 @@ def qualify_voice(voice: dict, quality: QualityReport) -> dict:
             + "); treat this score as indicative, not conclusive."
         )
         return block
-    block["verdict"] = "SUSPECTED_SYNTHETIC" if voice.get("suspected_synthetic") else "LIKELY_HUMAN"
-    block["verdict_detail"] = (
-        "Raw score exceeded the project's existing elevated threshold."
-        if voice.get("suspected_synthetic")
-        else "Raw score is below the project's existing elevated threshold."
-    )
+    if voice.get("ambiguous"):
+        block["verdict"] = "INCONCLUSIVE"
+        block["verdict_detail"] = (
+            "Score sits inside the screen's uncertainty band: the clip has the acoustics of a "
+            "real recording and of a neural voice at the same time. No verdict is claimed."
+        )
+        return block
+    if voice.get("suspected_synthetic"):
+        block["verdict"] = "SUSPECTED_SYNTHETIC"
+        block["verdict_detail"] = (
+            "Renderer-style artefacts were measured in this clip (see evidence). That is "
+            "positive evidence of generation or re-rendering, not proof of intent."
+        )
+    else:
+        # Deliberately NOT "likely human". A neural voice and a genuine recording
+        # can present the same acoustics, so the absence of artefacts is reported
+        # as an absence of evidence, never as proof of authenticity.
+        block["verdict"] = "NO_SYNTHETIC_ARTEFACTS"
+        block["verdict_detail"] = (
+            "No renderer-style artefact was measured. This does not establish that the "
+            "voice is human: modern neural voices can leave no measurable trace, so treat "
+            "this as unverified."
+        )
     return block

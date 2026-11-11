@@ -46,10 +46,40 @@ logger = logging.getLogger("voxsentinel.protection.reasoner")
 PROVIDER_ENDPOINTS = {
     "groq": "https://api.groq.com/openai/v1/chat/completions",
     "xai": "https://api.x.ai/v1/chat/completions",
+    "mistral": "https://api.mistral.ai/v1/chat/completions",
+    # Placeholder: resolved at call time from OLLAMA_BASE_URL (_endpoint_for).
+    "ollama": "http://localhost:11434/v1/chat/completions",
 }
-PROVIDER_KEYS = {"groq": "GROQ_API_KEY", "xai": "XAI_API_KEY"}
-PROVIDER_MODELS = {"groq": "openai/gpt-oss-120b", "xai": "grok-4.7"}
-PROVIDER_LABELS = {"groq": "Groq (GPT-OSS)", "xai": "Grok"}
+PROVIDER_KEYS = {
+    "groq": "GROQ_API_KEY",
+    "xai": "XAI_API_KEY",
+    "mistral": "MISTRAL_API_KEY",
+    "ollama": "OLLAMA_API_KEY",
+}
+PROVIDER_MODELS = {
+    "groq": "openai/gpt-oss-120b",
+    "xai": "grok-4.7",
+    "mistral": "mistral-small-latest",
+    "ollama": "mistral",
+}
+PROVIDER_LABELS = {
+    "groq": "Groq (GPT-OSS)",
+    "xai": "Grok",
+    "mistral": "Mistral AI",
+    "ollama": "Ollama (local)",
+}
+
+
+def _endpoint_for(provider: str) -> str:
+    """Chat-completions URL for a provider; Ollama is resolved from the env."""
+    if provider == "ollama":
+        from app.protection.ollama import OllamaConfigError, ollama_base_url
+
+        try:
+            return f"{ollama_base_url()}/v1/chat/completions"
+        except OllamaConfigError:
+            return PROVIDER_ENDPOINTS["ollama"]
+    return PROVIDER_ENDPOINTS[provider]
 
 MAX_TRANSCRIPT_CHARS = 6000
 
@@ -116,15 +146,17 @@ class ReasonerConfig:
 
     @property
     def available(self) -> bool:
-        return self.enabled and bool(self.api_key) and self.provider in PROVIDER_ENDPOINTS
+        if not self.enabled or self.provider not in PROVIDER_ENDPOINTS:
+            return False
+        # A local Ollama daemon authenticates nobody; every other provider needs
+        # a key before a review request is worth sending.
+        if self.provider == "ollama":
+            return True
+        return bool(self.api_key)
 
     @classmethod
     def from_env(cls, provider: str | None = None) -> ReasonerConfig:
         resolved = (provider or os.environ.get("PROTECTION_LLM_PROVIDER") or "groq").strip().lower()
-        if resolved not in PROVIDER_ENDPOINTS:
-            # Gemini and unknown providers have no OpenAI-compatible chat endpoint
-            # here; the review is simply reported as unavailable.
-            resolved = "groq"
         enabled = (os.environ.get("PROTECTION_REASONER", "disabled") or "").strip().lower() in {
             "enabled",
             "on",
@@ -169,6 +201,16 @@ def _extract_json(text: str) -> dict[str, Any] | None:
     return data if isinstance(data, dict) else None
 
 
+def _normalise_quote(text: str) -> str:
+    """Normalize punctuation and whitespace for robust verbatim matching."""
+    return " ".join(re.findall(r"[\w]+", text.casefold(), flags=re.UNICODE))
+
+
+def _is_substantive_quote(text: str) -> bool:
+    normalized = _normalise_quote(text)
+    return len(normalized) >= 12 and len(normalized.split()) >= 3
+
+
 class ReasoningReviewer:
     """Reviews a stage-1 classification with an independent reasoning pass."""
 
@@ -200,6 +242,7 @@ class ReasoningReviewer:
             return ReasonerReview(
                 status="unavailable",
                 provider=cfg.provider,
+                provider_label=PROVIDER_LABELS.get(cfg.provider),
                 detail="No API key configured for the reasoning review.",
             )
         if not transcript or not transcript.strip():
@@ -214,14 +257,14 @@ class ReasoningReviewer:
             "Review this decision and reply with the JSON object."
         )
         started = time.monotonic()
+        headers = {"Content-Type": "application/json"}
+        if cfg.api_key:
+            headers["Authorization"] = f"Bearer {cfg.api_key}"
         try:
             with httpx.Client(timeout=cfg.timeout_s) as client:
                 response = client.post(
-                    PROVIDER_ENDPOINTS[cfg.provider],
-                    headers={
-                        "Authorization": f"Bearer {cfg.api_key}",
-                        "Content-Type": "application/json",
-                    },
+                    _endpoint_for(cfg.provider),
+                    headers=headers,
                     json={
                         "model": cfg.model,
                         "temperature": 0,
@@ -285,8 +328,12 @@ class ReasoningReviewer:
         raw_signals = [str(x).strip() for x in raw_signals][:8] if isinstance(raw_signals, list) else []
         # A signal only counts when it is a verbatim slice of the transcript.
         # This is what stops the reviewer inventing or rewording evidence.
-        lowered = payload_text.lower()
-        signals = [s[:120] for s in raw_signals if s and s.lower() in lowered][:5]
+        normalized_transcript = _normalise_quote(payload_text)
+        signals = [
+            s[:120]
+            for s in raw_signals
+            if _is_substantive_quote(s) and _normalise_quote(s) in normalized_transcript
+        ][:5]
         dropped = len([s for s in raw_signals if s]) - len(signals)
         critique = str(data.get("critique") or "").strip()[:400] or None
         # Softening requires (a) a downgrade verdict and (b) at least one quoted,

@@ -1,10 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   analyzeAudio,
+  analyzeProtectionText,
   api,
   ApiError,
   ApiUnavailableError,
   mapAnalyzeError,
+  protectionApi,
 } from './api'
 
 afterEach(() => {
@@ -171,16 +173,65 @@ describe('analyzeAudio', () => {
     expect(mapAnalyzeError((err as ApiError).status, (err as ApiError).code)).toMatch(/not available/)
   })
 
-  it('rejects with ApiUnavailableError on network failure', async () => {
+  it('rejects with ApiUnavailableError after every candidate base fails', async () => {
+    // The client now retries each candidate base (configured + same origin)
+    // before declaring the backend unreachable, so every attempt must fail.
     vi.stubGlobal('XMLHttpRequest', FakeXHR)
     FakeXHR.last = null
 
     const file = new File([new Uint8Array(10)], 'clip.wav', { type: 'audio/wav' })
     const promise = analyzeAudio(file)
-    await vi.waitFor(() => expect(FakeXHR.last).not.toBeNull())
-    FakeXHR.last!.fail()
-
-    const err = await promise.catch((e) => e)
+    const err = await (async () => {
+      while (true) {
+        await vi.waitFor(() => expect(FakeXHR.last).not.toBeNull())
+        FakeXHR.last!.fail()
+        FakeXHR.last = null
+        const settled = await Promise.race([
+          promise.then(() => 'resolved').catch((e) => e),
+          new Promise((r) => setTimeout(() => r('pending'), 25)),
+        ])
+        if (settled !== 'pending') return settled
+      }
+    })()
     expect(err).toBeInstanceOf(ApiUnavailableError)
+  })
+})
+
+describe('unified protection endpoints', () => {
+  it('posts pasted text to /api/analyze as JSON with consent', async () => {
+    const calls: { url: string; init?: RequestInit }[] = []
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string, init?: RequestInit) => {
+        calls.push({ url: String(url), init })
+        return jsonRes({ id: 'a1', risk_badges: [], explanation: { verdict: 'HIGH' } })
+      }),
+    )
+    const result = await analyzeProtectionText('send me 1 lakh rupees now', { consent: true })
+    expect(result.id).toBe('a1')
+    expect(calls[0].url).toContain('/api/analyze')
+    expect(calls[0].init?.method).toBe('POST')
+    expect(JSON.parse(String(calls[0].init?.body))).toMatchObject({
+      text: 'send me 1 lakh rupees now',
+      consent: true,
+    })
+  })
+
+  it('reads the live model families from /api/capabilities', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        jsonRes({
+          schema_version: '1.0',
+          endpoint: 'POST /api/analyze',
+          input_kinds: ['audio', 'text'],
+          detector_ready: true,
+          models: { speaker_verification: { ready: true, model: 'ecapa', embedding_dim: 192 } },
+        }),
+      ),
+    )
+    const caps = await protectionApi.pipelineCapabilities()
+    expect(caps.models.speaker_verification?.embedding_dim).toBe(192)
+    expect(caps.input_kinds).toEqual(['audio', 'text'])
   })
 })

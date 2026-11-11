@@ -67,6 +67,16 @@ def test_missing_key_is_unavailable_not_a_crash(monkeypatch):
     assert got.status == "unavailable"
 
 
+def test_unsupported_selected_provider_does_not_fall_back_to_groq(monkeypatch):
+    monkeypatch.setenv("PROTECTION_REASONER", "enabled")
+    monkeypatch.setenv("PROTECTION_LLM_PROVIDER", "gemini")
+    monkeypatch.setenv("GROQ_API_KEY", "gsk-configured-but-must-not-be-used")
+    cfg = ReasonerConfig.from_env()
+    assert cfg.provider == "gemini"
+    assert cfg.available is False
+    assert ReasoningReviewer(cfg).review(SCAM, "LIKELY_SCAM").status == "unavailable"
+
+
 def test_agreement_reported_without_override(reviewer_of):
     review = reviewer_of(
         {"agrees": True, "verdict": "LIKELY_SCAM", "critique": "Demands ransom.",
@@ -99,6 +109,15 @@ def test_softening_without_evidence_is_refused(reviewer_of):
     assert review.evidence_verified is False
     assert review.dropped_signals == 1
     assert "stage-one result kept" in (review.detail or "")
+
+
+def test_trivial_verbatim_substring_cannot_authorize_downgrade(reviewer_of):
+    review = reviewer_of(
+        {"agrees": False, "verdict": "LIKELY_LEGITIMATE", "context_signals": ["a"]}
+    ).review(AWARENESS, "LIKELY_SCAM")
+    assert review.dropped_signals == 1
+    assert review.evidence_verified is False
+    assert review.overridden is False
 
 
 def test_invented_quotes_are_dropped(reviewer_of):

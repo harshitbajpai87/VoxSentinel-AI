@@ -1,0 +1,67 @@
+{
+  "release": "backend repair & stabilisation",
+  "date": "2026-11-11",
+  "scope": "four reported workflow failures + backend availability",
+  "unchanged_contracts": [
+    "ECAPA-TDNN architecture, embedding dimension, weights, similarity maths and thresholds",
+    "detector model artifact (20261107_hi) and feature contract",
+    "existing endpoint paths, request fields and response shapes (additive only)",
+    "frontend visual design, CSS, Tailwind config, fonts and colours"
+  ],
+  "added_files": [
+    "backend/app/services/ingestion.py",
+    "backend/app/services/ffmpeg_decoder.py",
+    "backend/tests/test_upload_limits.py",
+    "backend/tests/test_live_recording_api.py",
+    "backend/tests/test_decoders_and_health.py",
+    "backend/tests/test_speaker_verify_uploads.py",
+    "backend/tests/test_protection_uploads.py",
+    "frontend/src/lib/upload.test.ts",
+    "docs/UPLOAD_LIMITS_AND_DECODERS.md",
+    "docs/BACKEND_REPAIR_2026_11_11.md",
+    "verification/live-upload-verification-2026-11-11.txt",
+    "verification/backend-repair-2026-11-11.log",
+    "verification/frontend-tests-2026-11-11.log",
+    "verification/frontend-build-2026-11-11.log",
+    "verification/changes-2026-11-11.json"
+  ],
+  "modified_backend": [
+    "backend/app/api/routes.py",
+    "backend/app/core/config.py",
+    "backend/app/core/errors.py",
+    "backend/app/main.py",
+    "backend/app/schemas/analysis.py",
+    "backend/app/services/audio_validation.py",
+    "backend/app/services/features.py",
+    "backend/app/services/features_enhanced.py",
+    "backend/.env.example",
+    "backend/pyproject.toml",
+    "backend/tests/test_dataset_readiness.py",
+    "backend/tests/test_detector_scoring.py"
+  ],
+  "modified_frontend": [
+    "frontend/src/lib/api.ts",
+    "frontend/src/lib/types.ts",
+    "frontend/src/pages/AnalyzeAudioPage.tsx",
+    "frontend/dist/** (rebuilt)"
+  ],
+  "modified_docs": [
+    "README.md",
+    "RELEASE_NOTES.md",
+    "docs/DEPLOYMENT_GUIDE.md",
+    "docs/DEPLOY_VERCEL.md"
+  ],
+  "verification": {
+    "backend_pytest": "750 passed, 5 skipped",
+    "frontend_vitest": "104 passed, 14 files",
+    "frontend_build": "clean, 414.61 kB / 132.64 kB gzip",
+    "ruff": "clean (E,F,W,I,UP,B)",
+    "live_checks": "34 requests against real detector 20261107_hi and real ECAPA-TDNN"
+  },
+  "not_claimed": [
+    "no accuracy improvement: seen-generator F1 0.960 / FPR 5.4%, unseen-generator recall 5.3% unchanged",
+    "no authentication or per-user ownership added",
+    "no new speech training; fixtures are synthesised or generated",
+    "Vercel still caps request bodies at 4.5 MB"
+  ]
+}

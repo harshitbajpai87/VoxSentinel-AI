@@ -1,0 +1,125 @@
+{
+  "report_type": "training_report",
+  "model_name": "VoxSentinel Enhanced MFCC Candidate",
+  "model_version": "20261107_hi",
+  "model_mode": "candidate",
+  "candidate": "enhanced-hgb",
+  "artifact_path": "models/candidate_v5_hi/detector.joblib",
+  "trained_at": "2026-11-07T11:29:07Z",
+  "dataset": {
+    "manifest": "data/cross_generator_v4/manifests/all_hi.jsonl",
+    "sources": [
+      "edge_tts",
+      "fleurs_hi",
+      "librispeech"
+    ],
+    "summary": {
+      "counts": {
+        "train": {
+          "real": 1098,
+          "synthetic": 120
+        },
+        "validation": {
+          "real": 190,
+          "synthetic": 24
+        },
+        "eval": {
+          "real": 270,
+          "synthetic": 60
+        }
+      },
+      "total": 1762
+    }
+  },
+  "split": {
+    "strategy": "manifest partitions; scaler fit on train only; speaker-disjointness enforced between train and validation and against the reserved eval partition; group-aware splits from build_multisource_manifest.py",
+    "seed": 42,
+    "train_n": 1218,
+    "validation_n": 214,
+    "eval_reserved": 330
+  },
+  "features": {
+    "target_sample_rate": 16000,
+    "segment_seconds": 4.0,
+    "n_mfcc": 20,
+    "n_fft": 1024,
+    "hop_length": 256,
+    "n_mels": 128,
+    "fmin": 0.0,
+    "fmax": 8000.0,
+    "include_delta_mfcc": true,
+    "include_spectral_shape": true
+  },
+  "classifier": {
+    "type": "CalibratedClassifierCV(sigmoid, frozen)(sklearn.ensemble.HistGradientBoostingClassifier)",
+    "params": {
+      "max_iter": 200,
+      "learning_rate": 0.1,
+      "random_state": 42
+    },
+    "calibrated": true
+  },
+  "environment": {
+    "python": "3.11.17",
+    "numpy": "2.4.6",
+    "scikit_learn": "1.9.1",
+    "librosa": "0.11.0",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36"
+  },
+  "validation_metrics": {
+    "n": 214,
+    "n_real": 190,
+    "n_synthetic": 24,
+    "precision_synthetic": 0.8888888888888888,
+    "recall_synthetic": 0.6666666666666666,
+    "f1_synthetic": 0.7619047619047619,
+    "precision_real": 0.9591836734693877,
+    "recall_real": 0.9894736842105263,
+    "confusion_matrix": {
+      "tn": 188,
+      "fp": 2,
+      "fn": 8,
+      "tp": 16
+    },
+    "false_positive_rate": 0.010526315789473684,
+    "false_negative_rate": 0.3333333333333333,
+    "roc_auc": 0.980701754385965,
+    "note": "Validation metrics are post-calibration; validation was used for calibration.",
+    "operating_points_validation": {
+      "youden_threshold": 0.11893841687921552,
+      "youden_j": 0.9052631578947369,
+      "eer": 0.07894736842057185
+    }
+  },
+  "validation_breakdown": {
+    "by_source": {
+      "edge_tts": {
+        "n": 24,
+        "note": "single class in this group; metrics not computable"
+      },
+      "fleurs_hi": {
+        "n": 40,
+        "note": "single class in this group; metrics not computable"
+      },
+      "librispeech": {
+        "n": 150,
+        "note": "single class in this group; metrics not computable"
+      }
+    },
+    "by_generator": {
+      "edge-tts:en-GB-ThomasNeural": {
+        "n": 12,
+        "note": "single class in this group; metrics not computable"
+      },
+      "edge-tts:en-US-EmmaNeural": {
+        "n": 12,
+        "note": "single class in this group; metrics not computable"
+      },
+      "n/a": {
+        "n": 190,
+        "note": "single class in this group; metrics not computable"
+      }
+    }
+  },
+  "note": "Candidate report. Metrics are validation-only; the final verdict comes from evaluate_detector.py on the reserved eval partition, compared against the baseline."
+}

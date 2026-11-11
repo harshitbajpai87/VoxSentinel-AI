@@ -1,0 +1,87 @@
+{
+  "model": "ECAPA-TDNN (speechbrain/spkrec-ecapa-voxceleb)",
+  "dataset": "/tmp/av/LibriSpeech/dev-clean",
+  "embedding_dim": 192,
+  "pools": {
+    "calibration": 18,
+    "heldout": 18
+  },
+  "speakers_used": 36,
+  "utts_per_speaker": 4,
+  "pools_detail": {
+    "calibration": {
+      "n_same": 108,
+      "n_different": 153,
+      "same_mean": 0.77,
+      "different_mean": 0.1005,
+      "eer": 0.0,
+      "eer_threshold": 0.3651,
+      "at_eer": {
+        "threshold": 0.3651,
+        "far": 0.0,
+        "frr": 0.0
+      },
+      "at_app_threshold_0.5": {
+        "threshold": 0.5,
+        "far": 0.0,
+        "frr": 0.0278
+      },
+      "at_app_threshold_0.7": {
+        "threshold": 0.7,
+        "far": 0.0,
+        "frr": 0.213
+      }
+    },
+    "heldout": {
+      "n_same": 108,
+      "n_different": 153,
+      "same_mean": 0.763,
+      "different_mean": 0.0905,
+      "eer": 0.0033,
+      "eer_threshold": 0.3391,
+      "at_eer": {
+        "threshold": 0.3391,
+        "far": 0.0065,
+        "frr": 0.0
+      },
+      "at_app_threshold_0.5": {
+        "threshold": 0.5,
+        "far": 0.0,
+        "frr": 0.0648
+      },
+      "at_app_threshold_0.7": {
+        "threshold": 0.7,
+        "far": 0.0,
+        "frr": 0.25
+      }
+    }
+  },
+  "heldout_at_calibration_eer_threshold": {
+    "n_same": 108,
+    "n_different": 153,
+    "same_mean": 0.763,
+    "different_mean": 0.0905,
+    "eer": 0.0033,
+    "eer_threshold": 0.3391,
+    "at_eer": {
+      "threshold": 0.3391,
+      "far": 0.0065,
+      "frr": 0.0
+    },
+    "at_app_threshold_0.5": {
+      "threshold": 0.5,
+      "far": 0.0,
+      "frr": 0.0648
+    },
+    "at_app_threshold_0.7": {
+      "threshold": 0.7,
+      "far": 0.0,
+      "frr": 0.25
+    }
+  },
+  "decision": {
+    "calibrated_threshold": 0.3651,
+    "app_default_threshold": 0.5,
+    "note": "FAR/FRR here are for the embedding+cosine stage only. A cloned voice can score high against its target, so a high similarity is evidence of acoustic similarity, never proof of identity."
+  }
+}

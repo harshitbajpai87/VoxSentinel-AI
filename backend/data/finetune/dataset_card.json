@@ -1,0 +1,31 @@
+{
+  "created_by": "scripts/build_scam_finetune_dataset.py",
+  "sources": [
+    "tests/eval_scam_set.py",
+    "data/corpus/scam_corpus.jsonl (215 records)"
+  ],
+  "counts": {
+    "total": 231,
+    "train": 192,
+    "valid": 39
+  },
+  "schema": "app.protection.gemini.GeminiResult",
+  "label_mapping": {
+    "ransom_or_kidnapping": "KIDNAPPING_OR_RANSOM",
+    "family_emergency_impersonation": "FAMILY_EMERGENCY",
+    "threats_or_coercion": "EXTORTION_OR_THREATS",
+    "bank_account_or_card_fraud": "BANKING_FRAUD",
+    "otp_or_credential_theft": "OTP_OR_CREDENTIAL_THEFT",
+    "upi_or_payment_fraud": "UPI_OR_PAYMENT_FRAUD",
+    "police_impersonation": "GOVERNMENT_OR_POLICE_IMPERSONATION",
+    "suspicious_secrecy_or_urgency": "PHISHING_OR_SOCIAL_ENGINEERING",
+    "investment_or_crypto_scam": "INVESTMENT_OR_CRYPTO_FRAUD",
+    "tech_support": "TECH_SUPPORT_SCAM"
+  },
+  "caveats": [
+    "Targets are derived from hand-authored labels, not from model output.",
+    "Evidence quotes are copied verbatim from each transcript.",
+    "The bundled label set is a development regression set, not a training corpus.",
+    "Fine-tuning does not replace the rule-based evidence check: quotes are still verified at runtime."
+  ]
+}

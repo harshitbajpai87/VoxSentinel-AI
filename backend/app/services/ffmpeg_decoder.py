@@ -45,7 +45,16 @@ class FFmpegUnavailableError(RuntimeError):
     """Raised when the ffmpeg binary is not installed / not usable."""
 
 
+class AudioTooLongError(ValueError):
+    """Raised before decoding when a container exceeds the duration ceiling."""
+
+
+_AVAILABILITY: dict[str, bool] = {}
+
+
 def _ffmpeg_available(binary: str) -> bool:
+    if binary in _AVAILABILITY:
+        return _AVAILABILITY[binary]
     try:
         result = subprocess.run(
             [binary, "-version"],
@@ -53,9 +62,22 @@ def _ffmpeg_available(binary: str) -> bool:
             timeout=10,
             check=False,
         )
-        return result.returncode == 0
+        available = result.returncode == 0
     except (OSError, subprocess.TimeoutExpired):
-        return False
+        available = False
+    _AVAILABILITY[binary] = available
+    return available
+
+
+def ffmpeg_available(settings: Settings, *, refresh: bool = False) -> bool:
+    """True when the configured ffmpeg binary can be executed.
+
+    Cached: the answer only changes if the runtime does. ``refresh=True`` is
+    used by diagnostics/tests that deliberately change PATH.
+    """
+    if refresh:
+        _AVAILABILITY.pop(settings.ffmpeg_binary, None)
+    return _ffmpeg_available(settings.ffmpeg_binary)
 
 
 def probe_audio(data: bytes, settings: Settings) -> ProbedAudio:
@@ -98,15 +120,10 @@ def decode_to_mono_f32(data: bytes, settings: Settings) -> tuple[np.ndarray, int
     binary = settings.ffmpeg_binary
     path = _write_temp(data, settings)
     try:
-        result = _run(
-            [binary, "-v", "error", "-nostdin",
-             "-i", path, "-vn", "-map", "a:0",
-             "-ac", "1", "-f", "f32le", "-acodec", "pcm_f32le", "pipe:1"],
-            timeout=settings.ffmpeg_timeout_seconds,
-        )
-        if not result.stdout:
-            raise ValueError("ffmpeg produced no audio samples")
-        samples = np.frombuffer(result.stdout, dtype="<f4").astype(np.float32, copy=True)
+        # Probe BEFORE decoding: a 10-minute 48 kHz stereo clip expands to
+        # >100 MB of raw PCM, so the duration ceiling is enforced first and the
+        # decoder is given an explicit upper time bound as a belt-and-braces
+        # guard. Refusing early also stops a hostile upload from burning CPU.
         probed = _run(
             [settings.ffprobe_binary, "-v", "error", "-show_streams",
              "-select_streams", "a:0", "-of", "json", path],
@@ -120,6 +137,29 @@ def decode_to_mono_f32(data: bytes, settings: Settings) -> tuple[np.ndarray, int
         channels = int(streams[0].get("channels", 0) or 0)
         if sample_rate <= 0 or channels <= 0:
             raise ValueError("ffprobe reported an invalid stream")
+
+        duration = 0.0
+        try:
+            duration = float(streams[0].get("duration") or 0.0)
+        except (TypeError, ValueError):
+            duration = 0.0
+        if duration and duration > settings.max_duration_s:
+            raise AudioTooLongError(
+                f"The recording is {duration:.0f} s, longer than the "
+                f"{settings.max_duration_s:.0f} second limit."
+            )
+        bound = max(1.0, settings.max_duration_s + 1.0)
+
+        result = _run(
+            [binary, "-v", "error", "-nostdin",
+             "-i", path, "-vn", "-map", "a:0",
+             "-ac", "1", "-t", f"{bound:.3f}",
+             "-f", "f32le", "-acodec", "pcm_f32le", "pipe:1"],
+            timeout=settings.ffmpeg_timeout_seconds,
+        )
+        if not result.stdout:
+            raise ValueError("ffmpeg produced no audio samples")
+        samples = np.frombuffer(result.stdout, dtype="<f4").astype(np.float32, copy=True)
         return samples, sample_rate, channels
     finally:
         _remove_temp(path)
@@ -156,7 +196,14 @@ def cleanup_stale_temp_files(settings: Settings, now: float | None = None) -> in
 
 def _write_temp(data: bytes, settings: Settings) -> str:
     directory = Path(settings.temp_upload_dir)
-    directory.mkdir(parents=True, exist_ok=True)
+    try:
+        directory.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        # Read-only bundle filesystem (serverless hosts). The upload itself is
+        # fine; only the scratch copy cannot live where it was configured, so
+        # fall back to the platform temp directory instead of failing the user.
+        logger.info("configured temp dir is not writable; using the system temp dir")
+        directory = Path(tempfile.gettempdir())
     fd, path = tempfile.mkstemp(prefix="voxsentinel_upload_", dir=str(directory))
     with os.fdopen(fd, "wb") as handle:
         handle.write(data)

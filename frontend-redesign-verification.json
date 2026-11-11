@@ -1,0 +1,59 @@
+{
+  "originalArchive": "f9cb0860e_VoxSentinel_AI_FINAL_SUBMISSION_2026-500e89b3-1d3f-48e3-81bb-c90766f85428.zip",
+  "originalArchiveSHA256": "3ce519ef51df76a97af65501e4871a9ad2da98b3bb79d229f9e332f2f489359a",
+  "changedOriginalFiles": [
+    "frontend/public/favicon.svg",
+    "frontend/scripts/smoke-ssr.tsx",
+    "frontend/src/components/audio/WaveformCanvas.tsx",
+    "frontend/src/components/layout/AppLayout.tsx",
+    "frontend/src/components/layout/Sidebar.tsx",
+    "frontend/src/components/layout/Topbar.tsx",
+    "frontend/src/components/ui.tsx",
+    "frontend/src/index.css",
+    "frontend/src/main.tsx",
+    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/pages/LandingPage.tsx",
+    "frontend/tailwind.config.js"
+  ],
+  "newFiles": [
+    "frontend/src/pages/landing.css",
+    "frontend/src/pages/LandingPage.test.tsx",
+    "FRONTEND_REDESIGN.md",
+    "frontend-redesign-verification.json"
+  ],
+  "preserved": {
+    "backend/": {
+      "fileCount": 124,
+      "allSHA256Unchanged": true
+    },
+    "frontend/src/lib/": {
+      "fileCount": 9,
+      "allSHA256Unchanged": true
+    },
+    "training/": {
+      "fileCount": 8,
+      "allSHA256Unchanged": true
+    },
+    "evaluation/": {
+      "fileCount": 24,
+      "allSHA256Unchanged": true
+    },
+    "docs/": {
+      "fileCount": 21,
+      "allSHA256Unchanged": true
+    }
+  },
+  "checks": {
+    "productionBuild": "passed",
+    "routeSmoke": {
+      "passed": 11,
+      "failed": 0
+    },
+    "vitest": {
+      "passed": 81,
+      "failed": 0,
+      "files": 11
+    },
+    "liveModelInference": "not tested; backend offline"
+  }
+}

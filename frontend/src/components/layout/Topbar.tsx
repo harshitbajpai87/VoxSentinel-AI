@@ -11,7 +11,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
   const current = NAV_ITEMS.find((item) => pathname.startsWith(item.to))
 
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-canvas">
+    <header className="app-topbar sticky top-0 z-20 border-b border-line">
       <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
         <button
           className="rounded-md p-2 text-ink-dim hover:bg-surface-2 hover:text-ink lg:hidden"
@@ -30,7 +30,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
           <span className="truncate font-medium text-ink">{current?.label ?? 'Overview'}</span>
         </nav>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-3"><Link to="/" className="hidden text-xs text-ink-dim hover:text-accent sm:block">Back to website ↗</Link>
           <button
             onClick={() => void refresh()}
             className="rounded-md p-2 text-ink-dim transition-colors hover:bg-surface-2 hover:text-ink"

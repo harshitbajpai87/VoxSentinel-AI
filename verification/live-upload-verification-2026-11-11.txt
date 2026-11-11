@@ -1,0 +1,22 @@
+== Analyze Audio ==
+WAV 3.2 s                                    200     442 ms  category=inconclusive score=0.5028131734804092 dur=5.265s
+M4A/AAC                                      200     893 ms  category=inconclusive score=0.4650859200491222 dur=5.312s
+WebM/Opus (browser recording)                200     961 ms  category=inconclusive score=0.2631326771847317 dur=5.265s
+blob name, no extension                      200    1245 ms  category=inconclusive score=0.2631326771847317 dur=5.265s
+5.5 MB                                       200     290 ms  category=inconclusive score=0.5029831643033694 dur=5.265s
+24 MB                                        200     184 ms  category=inconclusive score=0.5029831643033694 dur=5.265s
+26 MB (must 413)                             413     407 ms  file_too_large: The audio file is 26 MB, above this deployment's 25 MB upload limit.
+corrupted webm                               422     434 ms  invalid_audio: The audio could not be decoded; it may be corrupted, truncated or use an unsupported codec.
+== Speaker Verification ==
+same speaker (wav vs m4a)                    200    1411 ms  status=completed
+   similarity 0.995056688785553 outcome likely_same_speaker threshold 0.5
+   different speaker similarity 0.10873712599277496 outcome likely_different_speaker
+20 MB reference + speech                     200     763 ms  status=completed
+reference too large                          413     132 ms  file_too_large: The reference file is 26 MB, above this deployment's 25 MB upload limit.
+authorization missing                        400       9 ms  missing_authorization: The reference recording must be explicitly authorized before comparison.
+== Scam Protection ==
+speech WAV (real Whisper)                    200    2571 ms  risk=MEDIUM signal=0 stages={'audio_validation': 'completed', 'transcription': 'completed', 'language_identification': 'completed', 'synthetic_voice_analysis': 'completed', 'audio_quality_assessment': 'good', 'family_voice_comparison': 'skipped', 'scam_content_analysis': 'completed', 'trained_content_classifier': 'completed', 'contextual_ai_analysis': 'unavailable', 'risk_assessment': 'completed', 'report_generation': 'completed'}
+   transcript: The quick roundfucks jump over the lazy dog well-eat evening train arrives at the station.
+24 MB call recording                         200    1444 ms  status=completed
+26 MB call (must 413)                        413     172 ms  file_too_large: The audio file is 26 MB, above this deployment's 25 MB upload limit.
+corrupted call audio                         415      21 ms  unsupported_media_type: These bytes are not recognizable audio (no decodable container signature was found), so the file cannot be ana

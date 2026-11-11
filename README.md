@@ -1,5 +1,11 @@
 # VoxSentinel AI
 
+> Current repair-release status: read [START_HERE.md](START_HERE.md) and
+> [docs/REPAIR_VERIFICATION.md](docs/REPAIR_VERIFICATION.md) first. Historical
+> completion tables and stored metrics below were supplied in the original
+> archive and are NOT fresh verification. This release does not guarantee
+> 100% accuracy or complete production readiness.
+
 **Voice-Cloning Impersonation Detection and Risk-Aware Prevention System**
 
 | | |
@@ -27,6 +33,17 @@
 | 8 | Security hardening + tests | Done — audit log, retention policy, upload hardening; backend 173 tests + frontend 73 tests green, ruff clean, tsc clean, production build green |
 | 9 | GitHub collaboration + deployment | Partial — repo ready (clean .gitignore, no secrets); deployment not started |
 | 10 | Acceptance checks | Pending — live end-to-end checks passed on localhost; SIH demo checklist remains |
+
+## Uploads, decoding and limits (2026-11-11)
+
+All four audio workflows share one ingress layer: 25 MB per file (26 214 400
+bytes, streaming, aborted at the limit), container sniffing instead of trusting
+filenames, and an ffmpeg fallback for M4A/AAC/WebM/Opus. ffmpeg and ffprobe must
+be installed by the operator (`pip install ffmpeg-python` is not enough). Full
+matrix, environment variables, `/health` contract and every error code:
+[`docs/UPLOAD_LIMITS_AND_DECODERS.md`](./docs/UPLOAD_LIMITS_AND_DECODERS.md).
+Repair report: [`docs/BACKEND_REPAIR_2026_11_11.md`](./docs/BACKEND_REPAIR_2026_11_11.md).
+Model reliability and validation limits: [`docs/MODEL_RELIABILITY_REPAIRS_2026_11_11.md`](./docs/MODEL_RELIABILITY_REPAIRS_2026_11_11.md).
 
 ## Repository layout
 
@@ -177,7 +194,8 @@ for the step-by-step localhost deployment guide.
 
 - **Provider**: Groq (`api.groq.com/openai/v1`) via a provider-agnostic adapter.
   Default model `openai/gpt-oss-120b`. `PROTECTION_LLM_PROVIDER` selects
-  `groq | xai | gemini`; with no explicit choice the first configured key wins.
+  `groq | xai | mistral | gemini | ollama`; with no explicit choice the first
+  configured provider wins.
 - **Grok is not Groq**: xAI keys (`xai-...`) belong to `api.x.ai`; Groq keys
   (`gsk_...`) belong to `api.groq.com`. Both adapters now exist and are tested.
 - **Live proof**: a ransom recording was transcribed, checked, rule-scored and
@@ -190,3 +208,32 @@ for the step-by-step localhost deployment guide.
   dropped, and unknown classification/risk values still fail closed.
 - **Tests**: 306 backend (2 skipped integration), 76 frontend, 0 type errors,
   clean lint and production build.
+
+## v15 — Mistral AI and Ollama providers, plus training tooling
+
+- **Mistral AI** (`api.mistral.ai/v1`) joins the adapter set. Default model
+  `mistral-small-latest`, `MISTRAL_API_KEY` is the only required setting,
+  `PROTECTION_LLM_PROVIDER=mistral`. Same schema, same verbatim-quote check,
+  same never-raise contract; status codes are provider-scoped
+  (`mistral_auth_failed`, `mistral_rate_limited`, …).
+- **Ollama** (local) is supported for offline deployments: no API key, loopback
+  `http` allowed and remote hosts forced to `https`, one retry instead of two for
+  cold model loads, plus a `health()` probe of `/api/tags`. Off by default and
+  enabled only by `VOXSENTINEL_OLLAMA_ENABLED=true` or explicit selection.
+- **Training pipeline**, honestly scoped: `scripts/build_scam_finetune_dataset.py`
+  turns labelled transcripts into schema-validated chat-format JSONL with
+  verbatim evidence quotes; `scripts/train_mistral_finetune.py` validates and
+  (only with `--submit`) starts a hosted Mistral fine-tuning job;
+  `scripts/create_ollama_model.py` builds a local Ollama model from the
+  production system prompt plus labelled examples, optionally importing a LoRA
+  adapter. The bundled label set is a development regression set: the builders
+  warn below 50 (dataset) and 100 (training) examples, so a real corpus is
+  required before claiming a tuned model.
+- **Docs**: `docs/MISTRAL_OLLAMA.md`.
+- **Tests**: 434 backend (3 skipped), all offline via mocked transports.
+
+## Documentation
+
+- [docs/UNIFIED_PIPELINE.md](docs/UNIFIED_PIPELINE.md) - the single-call
+  `POST /api/analyze` contract, every model it can use, how to enable each one,
+  and its honest limits.

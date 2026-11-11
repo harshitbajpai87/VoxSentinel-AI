@@ -1,19 +1,9 @@
-# VoxSentinel AI backend — pinned runtime dependencies (Python 3.11+)
-fastapi==0.159.1
-uvicorn[standard]==0.54.0
-SQLAlchemy==2.1.6
-python-multipart==0.0.32
-numpy==2.4.6
-soundfile==0.14.0
-librosa==0.11.0
-scikit-learn==1.9.1
-joblib==1.6.0
-websockets==15.0.1
+-r requirements-core.txt
 
 # Speaker verification (ECAPA-TDNN embeddings, Phase 5). Optional: the API
 # stays honest ("unavailable") without these, but real verification needs them.
 # CPU-only torch keeps the install small; CUDA users may swap the index.
-torch==2.14.1  # install CPU build: pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+torch==2.11.0  # Must match torchaudio; use the official CPU index if desired.
 torchaudio==2.11.0
 speechbrain==1.1.2
 huggingface_hub>=0.40  # for scripts/download_speaker_model.py (one-time fetch)

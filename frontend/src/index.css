@@ -3,38 +3,42 @@
 @tailwind utilities;
 
 @layer base {
-  html {
-    color-scheme: light;
-  }
-  body {
-    @apply bg-canvas text-ink antialiased;
-    font-feature-settings: 'tnum' 0; /* tabular numerals enabled per-element */
-  }
-  ::selection {
-    @apply bg-accent/25;
-  }
-  /* One visible, calm focus treatment for keyboard users. */
-  *:focus-visible {
-    @apply outline-none ring-2 ring-accent/70 ring-offset-2 ring-offset-canvas rounded-sm;
-  }
-  /* Respect reduced-motion preferences globally. */
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-  ::-webkit-scrollbar-thumb {
-    @apply bg-line rounded-full;
-  }
-  ::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
+  html { color-scheme: light; scroll-behavior: smooth; }
+  body { @apply bg-canvas text-ink antialiased; }
+  ::selection { background: #e4c2ad; color: #352d29; }
+  *:focus-visible { @apply outline-none ring-2 ring-accent/70 ring-offset-2 ring-offset-canvas rounded-sm; }
+  button, a, input, select, summary { touch-action: manipulation; }
+  button:disabled { pointer-events: none; }
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-thumb { @apply bg-line rounded-full; }
+  ::-webkit-scrollbar-track { @apply bg-canvas; }
+}
+
+.app-shell { background: #fcf9f1; }
+.app-sidebar { background: #f4efe3; }
+.app-sidebar nav a { min-height: 44px; border-radius: 9px; transition: color .2s, background .2s, transform .2s; }
+.app-sidebar nav a:hover { transform: translateX(3px); }
+.app-topbar { background: rgba(252,249,241,.96); backdrop-filter: blur(12px); }
+.app-page { animation: workspace-enter .3s ease-out; }
+.app-page-header { padding: 0 0 22px; border-bottom: 1px solid #ddd3c3; margin-bottom: 25px; }
+.app-page-header h1 { font-size: clamp(25px, 2.5vw, 36px); font-weight: 500; letter-spacing: -1.1px; }
+.app-panel { border-radius: 14px; overflow: hidden; }
+.app-panel>header { background: #faf7ee; }
+.app-stat { border-radius: 12px; border-top: 2px solid #b69477; }
+.app-stat>p:first-child { font-size: 10px; letter-spacing: .08em; }
+.app-stat>p:nth-child(2) { font-weight: 500; }
+.action-button { border-radius: 999px; min-height: 40px; transition: background .2s, color .2s, border-color .2s, transform .2s, box-shadow .2s; }
+.action-button:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 12px #84614519; }
+.action-button:active { transform: translateY(0); }
+.app-shell input:not([type=checkbox]):not([type=radio]):not([type=range]), .app-shell select, .app-shell textarea { border-radius: 9px; }
+.app-shell input[type=checkbox], .app-shell input[type=radio], .app-shell input[type=range] { accent-color: #ad432d; }
+.app-shell table { font-variant-numeric: tabular-nums; }
+.app-shell th { color: #6c6056; font-weight: 500; }
+.app-shell tbody tr { transition: background .2s; }
+.app-shell tbody tr:hover { background: #f6f0e4; }
+@keyframes workspace-enter { from { opacity: .6; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@media(prefers-reduced-motion:reduce) {
+  html { scroll-behavior: auto; }
+  *,*::before,*::after { animation-duration: .01ms!important; animation-iteration-count: 1!important; transition-duration: .01ms!important; scroll-behavior: auto!important; }
+  .app-sidebar nav a:hover, .action-button:not(:disabled):hover { transform: none; }
 }

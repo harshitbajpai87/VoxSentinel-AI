@@ -1,0 +1,17 @@
+# Optional heavy tier for the unified protection pipeline.
+# Install on top of requirements.txt on a container host (not on serverless):
+#   pip install -r requirements.txt -r requirements-models.txt
+# Everything below degrades to an explicit "unavailable" status when absent,
+# so the API still runs with only requirements-core.txt.
+
+# Whisper-small / wav2vec2 / MuRIL / DeBERTa inference
+torch>=2.2,<3
+transformers>=4.44,<5
+sentencepiece>=0.2.0          # MuRIL tokenizer
+protobuf>=4.25                # XLM-R derived tokenizers
+safetensors>=0.4.3
+huggingface_hub>=0.24         # download_hf_models.py
+tokenizers>=0.19
+
+# Speaker biometrics (speechbrain/spkrec-ecapa-voxceleb)
+speechbrain>=1.0.0

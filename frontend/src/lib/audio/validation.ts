@@ -33,10 +33,13 @@ export const DEFAULT_AUDIO_LIMITS: AudioLimits = {
   clippingPeak: 0.995,
 }
 
-export const ACCEPTED_EXTENSIONS = ['wav', 'mp3', 'flac', 'm4a', 'aac', 'ogg', 'oga', 'opus', 'webm'] as const
+export const ACCEPTED_EXTENSIONS = [
+  'wav', 'mp3', 'flac', 'm4a', 'm4b', 'aac', 'ogg', 'oga', 'opus', 'webm',
+  'aiff', 'aif', 'caf', 'wma', 'amr', 'mp4', 'mka', '3gp', 'spx', 'wv', 'au',
+] as const
 export type AcceptedExtension = (typeof ACCEPTED_EXTENSIONS)[number]
 
-export const ACCEPTED_EXTENSIONS_LABEL = 'WAV, MP3, FLAC, M4A'
+export const ACCEPTED_EXTENSIONS_LABEL = 'WAV, MP3, FLAC, M4A, AAC, OGG, OPUS, WEBM, AIFF, WMA, AMR, MP4'
 
 export type SelectionErrorCode =
   | 'empty_file'

@@ -1,0 +1,37 @@
+{
+  "purpose": "Generated non-speech runtime check, not speech accuracy or representative latency benchmark",
+  "loaded": true,
+  "description": {
+    "id": "voice_detector",
+    "name": "VoxSentinel Enhanced MFCC Candidate",
+    "version": "20261107_hi",
+    "mode": "candidate",
+    "kind": "detection",
+    "description": "Enhanced-feature candidate detector (delta-MFCC + spectral shape) trained by the multi-dataset pipeline; see its training report for provenance and calibration status.",
+    "loaded": true
+  },
+  "inference": {
+    "raw_score": 0.06305680039793156,
+    "raw_score_definition": "Estimated P(synthetic) from the explicitly calibrated classifier; calibration is limited to the artifact's validation distribution.",
+    "calibrated_probability": 0.06305680039793156,
+    "uncertainty": 0.1261136007958631,
+    "uncertainty_method": "Classifier margin: 1 - 2*abs(p - 0.5). Higher means nearer the decision boundary; this is NOT a validated error probability and does not measure out-of-distribution uncertainty.",
+    "model_name": "VoxSentinel Enhanced MFCC Candidate",
+    "model_version": "20261107_hi",
+    "model_mode": "candidate",
+    "explanation": "Grouped feature-occlusion sensitivity (replacement score minus original score): MFCC means: -0.0312506; MFCC standard deviations: -0.00954929; delta-MFCC means: -0.00981291; delta-MFCC standard deviations: +0.00445341; spectral shape: -0.047469. Each group was replaced by fitted scaler training means; other features were held fixed. These are actual model score changes, not causal proof or additive contributions; replacement vectors may not correspond to realistic audio.",
+    "window_scores": [
+      {
+        "start_s": 0.0,
+        "end_s": 4.0,
+        "score": 0.06305680039793156
+      },
+      {
+        "start_s": 2.0,
+        "end_s": 5.0,
+        "score": 0.19727408672215582
+      }
+    ]
+  },
+  "single_call_seconds": 0.22610570001415908
+}

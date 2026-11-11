@@ -66,12 +66,39 @@ def install_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def handle_validation_error(_: Request, exc: RequestValidationError) -> JSONResponse:
-        # Field-level details are useful in development but can echo user input,
-        # so the client only receives a stable, safe summary.
-        logger.info("Request validation failed: %s", exc.errors())
+        # Field NAMES and failure kinds are safe and actionable ("test: field
+        # required"); the user's INPUT VALUES are never echoed back. The previous
+        # blanket "one or more request fields are invalid" left the UI unable to
+        # say what was missing.
+        errors = exc.errors()
+        logger.info("Request validation failed: %s", errors)
+        fields: list[str] = []
+        for err in errors:
+            location = [
+                str(part)
+                for part in (err.get("loc") or ())
+                if part not in ("body", "query", "path", "header")
+            ]
+            name = ".".join(location) or "request"
+            reason = {
+                "missing": "is required",
+                "value_error": "has an invalid value",
+                "type_error": "has the wrong type",
+                "bool_parsing": "must be true or false",
+                "int_parsing": "must be a whole number",
+                "float_parsing": "must be a number",
+                "file_required": "is required",
+            }.get(str(err.get("type")), "is invalid")
+            entry = f"{name} {reason}"
+            if entry not in fields:
+                fields.append(entry)
+        if fields:
+            message = "Check the request fields: " + "; ".join(fields[:5]) + "."
+        else:
+            message = "One or more request fields are invalid."
         return JSONResponse(
             status_code=422,
-            content=error_body("validation_error", "One or more request fields are invalid."),
+            content=error_body("validation_error", message),
         )
 
     @app.exception_handler(Exception)

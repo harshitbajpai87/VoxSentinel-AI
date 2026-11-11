@@ -224,7 +224,12 @@ def test_invalid_audio_is_rejected(protection_client):
         files={"file": ("bad.wav", b"not-audio-at-all", "audio/wav")},
         data={"consent": "true"},
     )
-    assert response.status_code == 400
+    # Unified with every other audio endpoint: bytes that contain no recognizable
+    # audio container are an unsupported media type (415). This endpoint used to
+    # collapse every validation failure into a generic 400, which is exactly why
+    # the UI could not explain what went wrong.
+    assert response.status_code == 415
+    assert response.json()["error"]["code"] == "unsupported_media_type"
 
 
 def test_family_profile_requires_consent(protection_client):

@@ -19,10 +19,26 @@ import numpy as np
 
 from app.core.config import Settings
 
-# Formats this service will attempt to decode.
-SUPPORTED_EXTENSIONS = ("wav", "flac", "ogg", "mp3", "m4a", "aac", "webm", "opus", "oga")
+# Formats this service will attempt to decode. The first group is decoded by
+# libsndfile (or the stdlib WAV reader); the second needs the ffmpeg fallback.
+NATIVE_EXTENSIONS = ("wav", "flac", "ogg", "mp3")
+SUPPORTED_EXTENSIONS = NATIVE_EXTENSIONS + ("m4a", "m4b", "mp4", "aac", "webm", "opus", "oga", "mkv")
 # Containers only the ffmpeg fallback layer can decode (see ffmpeg_decoder).
-FFMPEG_ONLY_EXTENSIONS = ("m4a", "aac", "webm", "opus", "oga", "mp4", "mkv")
+FFMPEG_ONLY_EXTENSIONS = ("m4a", "m4b", "mp4", "aac", "webm", "opus", "oga", "mkv")
+
+#: Human label for the formats decodable on THIS deployment (ffmpeg-aware).
+def supported_formats_label(settings: Settings) -> str:
+    from app.services import ffmpeg_decoder
+
+    native = "WAV, MP3, FLAC, OGG"
+    if ffmpeg_decoder.ffmpeg_available(settings):
+        return f"{native}, M4A, MP4, AAC, WEBM, OPUS"
+    return native
+
+
+def _human_mb(num_bytes: int) -> str:
+    megabytes = num_bytes / (1024 * 1024)
+    return f"{megabytes:.0f} MB" if megabytes >= 10 else f"{megabytes:.1f} MB"
 # Accepted by the frontend's preview but not decodable by this backend build
 # (libsndfile has no AAC/M4A support). Rejected with a clear 415.
 # Everything else a browser might send that we still cannot decode honestly.
@@ -200,13 +216,25 @@ def decode_audio(data: bytes, fmt: str, settings: Settings) -> tuple[np.ndarray,
     try:
         samples, sample_rate, channels = ffmpeg_decoder.decode_to_mono_f32(data, settings)
     except ffmpeg_decoder.FFmpegUnavailableError:
+        # 503, not 415: the format IS supported by the application, the
+        # deployed runtime is missing a required processing service. The client
+        # can convert the clip locally and retry (see code decoder_unavailable).
         raise AudioValidationError(
-            415,
-            "unsupported_media_type",
-            f"This server cannot decode {fmt.upper()} files: ffmpeg is not installed. "
-            "Install ffmpeg on the server to enable M4A/AAC/WebM/Opus uploads.",
+            503,
+            "decoder_unavailable",
+            f"This deployment cannot decode {fmt.upper()} files: the ffmpeg decoder is not "
+            "installed or not executable on this server. Formats decodable here: "
+            f"{supported_formats_label(settings)}. Install ffmpeg (e.g. `apt-get install "
+            "ffmpeg`) and restart the backend, or convert the file to WAV/MP3/FLAC/OGG first.",
         ) from None
     except TimeoutError as exc:
+        raise AudioValidationError(
+            422,
+            "invalid_audio",
+            "Audio decoding timed out on this server. The recording may be too long or "
+            "the file may be malformed.",
+        ) from exc
+    except ffmpeg_decoder.AudioTooLongError as exc:
         raise AudioValidationError(422, "invalid_audio", str(exc)) from exc
     except ValueError:
         raise AudioValidationError(
@@ -230,7 +258,24 @@ def measure(samples: np.ndarray, sample_rate: int, channels: int, settings: Sett
     rms = float(np.sqrt(np.mean(np.square(samples, dtype=np.float64))))
 
     warnings: list[str] = []
+    # Duration checks come first so the message names the real problem. A 0.4 s
+    # clip or a truncated file is not "silent" — telling the user that sends them
+    # looking for the wrong fix.
+    if duration_s <= 0.2:
+        raise AudioValidationError(
+            422,
+            "invalid_audio",
+            "The file contains no decodable audio frames. It is probably truncated, "
+            "corrupted or not really an audio file.",
+        )
     if rms < settings.silence_rms:
+        if duration_s < settings.min_duration_s:
+            raise AudioValidationError(
+                422,
+                "invalid_audio",
+                f"The recording is only {duration_s:.1f} s and contains no usable speech. "
+                f"Upload at least {settings.min_duration_s:.0f} s of audio.",
+            )
         raise AudioValidationError(
             422,
             "invalid_audio",
@@ -264,46 +309,58 @@ def measure(samples: np.ndarray, sample_rate: int, channels: int, settings: Sett
     )
 
 
-def validate_and_decode(data: bytes, filename: str, settings: Settings) -> DecodedAudio:
-    """Full server-side validation pipeline for one uploaded file."""
+def validate_and_decode(
+    data: bytes,
+    filename: str,
+    settings: Settings,
+    content_type: str | None = None,
+) -> DecodedAudio:
+    """Full server-side validation pipeline for one uploaded file.
+
+    The declared ``content_type`` and the filename are HINTS: the container is
+    identified from the bytes (``sniff_format``) and only a successful decode
+    proves the upload is really audio.
+    """
     if len(data) == 0:
-        raise AudioValidationError(422, "invalid_audio", "The uploaded file is empty.")
-    if len(data) > settings.max_upload_bytes:
+        raise AudioValidationError(422, "invalid_audio", "The uploaded file is empty (0 bytes).")
+
+    limit = settings.effective_upload_limit_bytes()
+    if len(data) > limit:
         raise AudioValidationError(
             413,
             "file_too_large",
-            f"The uploaded file exceeds the {settings.max_upload_bytes // (1024 * 1024)} MB limit.",
+            f"The uploaded file is {_human_mb(len(data))}, above this deployment's "
+            f"{_human_mb(limit)} upload limit.",
         )
 
     extension = extension_of(filename)
-    if extension in KNOWN_UNSUPPORTED_EXTENSIONS:
-        raise AudioValidationError(
-            415,
-            "unsupported_media_type",
-            f"{extension.upper()} audio is not supported by this backend build yet. "
-            "Supported here: WAV, FLAC, OGG, MP3.",
-        )
-    if extension not in SUPPORTED_EXTENSIONS:
+    detected = sniff_format(data)
+
+    if detected is None:
+        # Unknown signature. If the name claims audio we say the bytes are not
+        # decodable audio; otherwise the format simply is not supported here.
+        if extension in SUPPORTED_EXTENSIONS:
+            raise AudioValidationError(
+                415,
+                "unsupported_media_type",
+                "These bytes are not recognizable audio (no decodable container signature was "
+                "found), so the file cannot be analyzed. If it came from a browser recording, "
+                "re-record or convert it to WAV first.",
+            )
         raise AudioValidationError(
             415,
             "unsupported_media_type",
             f"“{extension or filename}” is not a supported audio format. "
-            "Supported here: WAV, FLAC, OGG, MP3.",
+            f"Supported formats on this deployment: {supported_formats_label(settings)}.",
         )
 
-    detected = sniff_format(data)
-    if detected is None:
+    if extension and extension not in SUPPORTED_EXTENSIONS and extension not in FFMPEG_ONLY_EXTENSIONS:
         raise AudioValidationError(
             415,
             "unsupported_media_type",
-            "The file does not appear to contain audio data.",
-        )
-    if detected in KNOWN_UNSUPPORTED_EXTENSIONS:
-        raise AudioValidationError(
-            415,
-            "unsupported_media_type",
-            "That audio container is not supported by this backend build yet. "
-            "Supported here: WAV, FLAC, OGG, MP3.",
+            f"The file name extension “.{extension}” is not an accepted audio type, even though "
+            f"its content looks like {detected.upper()}. Accepted extensions: "
+            f"{supported_formats_label(settings)}.",
         )
 
     samples, sample_rate, channels = decode_audio(data, detected, settings)

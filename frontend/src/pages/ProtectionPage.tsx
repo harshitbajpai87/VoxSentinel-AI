@@ -30,6 +30,8 @@ import type {
   ProtectionAnalysisSummary,
 } from '../lib/types'
 import { ACCEPTED_EXTENSIONS_LABEL, DEFAULT_AUDIO_LIMITS, formatBytes } from '../lib/audio/validation'
+import { RiskBadgeRow } from '../components/protection/RiskBadgeRow'
+import { ThreatExplanationCard } from '../components/protection/ThreatExplanationCard'
 
 type Stage = 'idle' | 'selected' | 'running' | 'done' | 'error'
 
@@ -93,6 +95,9 @@ export default function ProtectionPage() {
   const [profileBusy, setProfileBusy] = useState(false)
   const [profileMsg, setProfileMsg] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
+  // Text-only path: the same content, LLM and risk layers, no audio needed.
+  const [inputMode, setInputMode] = useState<'audio' | 'text'>('audio')
+  const [pastedText, setPastedText] = useState('')
   const profileInputRef = useRef<HTMLInputElement | null>(null)
 
   const loadHistory = useCallback(async () => {
@@ -134,6 +139,31 @@ export default function ProtectionPage() {
     setResult(null)
     try {
       const res = await protectionApi.analyze(file, { consent, profileId: profileId || null })
+      setResult(res)
+      setStage('done')
+      void loadHistory()
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'The analysis could not be completed.'
+      setFailure(message)
+      setStage('error')
+    }
+  }
+
+  const runTextAnalysis = async () => {
+    if (!consent || pastedText.trim().length < 10) return
+    setStage('running')
+    setFailure(null)
+    setResult(null)
+    try {
+      const res = await protectionApi.analyzeText(pastedText.trim(), {
+        consent,
+        profileId: profileId || null,
+      })
       setResult(res)
       setStage('done')
       void loadHistory()
@@ -201,18 +231,62 @@ export default function ProtectionPage() {
     <div className="animate-fade-in">
       <PageHeader
         title="Family Emergency & Scam Protection"
-        subtitle="Analyze a suspicious call for AI voice cloning, family-emergency impersonation, ransom demands and payment fraud. Findings combine real transcription, the existing voice-authenticity detector, optional family-voice comparison and contextual scam analysis."
-        actions={<Tag>New module</Tag>}
+        subtitle="Analyze suspicious call recordings for AI voice cloning, impersonation, and payment fraud using transcription, voice verification, and pattern analysis."
+        actions={<Tag>Protection</Tag>}
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <Card
-            title="1 · Upload the suspicious call"
-            subtitle={`Audio only. ${
-              Math.round(DEFAULT_AUDIO_LIMITS.maxFileSizeBytes / (1024 * 1024))
-            } MB max; ${ACCEPTED_EXTENSIONS_LABEL} and similar formats.`}
+            title="1 · Provide the suspicious call"
+            subtitle={
+              inputMode === 'audio'
+                ? `Audio, up to ${Math.round(
+                    DEFAULT_AUDIO_LIMITS.maxFileSizeBytes / (1024 * 1024),
+                  )} MB; ${ACCEPTED_EXTENSIONS_LABEL} and similar formats.`
+                : 'Paste a transcript to check the content layers without audio. Voice authenticity and speaker match cannot be assessed without a recording.'
+            }
           >
+            <div className="mb-4 inline-flex rounded-lg border border-line p-0.5" role="tablist" aria-label="Input type">
+              {(['audio', 'text'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  role="tab"
+                  aria-selected={inputMode === mode}
+                  data-testid={`input-mode-${mode}`}
+                  onClick={() => {
+                    setInputMode(mode)
+                    setResult(null)
+                    setFailure(null)
+                    setStage(mode === 'audio' ? (file ? 'selected' : 'idle') : 'idle')
+                  }}
+                  className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                    inputMode === mode ? 'bg-accent/10 text-accent' : 'text-ink-dim hover:text-ink'
+                  }`}
+                >
+                  {mode === 'audio' ? 'Call recording' : 'Pasted transcript'}
+                </button>
+              ))}
+            </div>
+            {inputMode === 'text' ? (
+              <div>
+                <label htmlFor="protection-transcript" className="mb-1 block text-xs font-medium text-ink-faint">
+                  Transcript to check
+                </label>
+                <textarea
+                  id="protection-transcript"
+                  data-testid="protection-transcript"
+                  value={pastedText}
+                  onChange={(e) => setPastedText(e.target.value)}
+                  rows={7}
+                  placeholder="Paste what the caller said. English, Hindi or Hinglish."
+                  className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
+                />
+                <p className="mt-1 text-xs text-ink-faint">
+                  {pastedText.trim().length} characters · content, scam intent, threat reasoning and risk are all computed
+                </p>
+              </div>
+            ) : (
             <div
               role="button"
               tabIndex={0}
@@ -239,7 +313,7 @@ export default function ProtectionPage() {
               <input
                 ref={inputRef}
                 type="file"
-                accept="audio/*,.wav,.mp3,.m4a,.flac,.ogg"
+                accept="audio/*,.wav,.mp3,.m4a,.mp4,.aac,.flac,.ogg,.oga,.opus,.webm,.aiff,.aif,.caf,.wma,.amr,.mka,.3gp,.spx"
                 className="sr-only"
                 onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
               />
@@ -255,6 +329,7 @@ export default function ProtectionPage() {
                   : 'Nothing is uploaded until you start the analysis'}
               </p>
             </div>
+            )}
 
             <div className="mt-5 space-y-4">
               <label className="flex items-start gap-2.5 text-sm text-ink-dim">
@@ -264,10 +339,7 @@ export default function ProtectionPage() {
                   onChange={(e) => setConsent(e.target.checked)}
                   className="mt-0.5 h-4 w-4 accent-accent"
                 />
-                <span>
-                  I am authorized to analyze this recording and understand a suspicious transcript does
-                  not prove a crime occurred.
-                </span>
+                <span>I confirm I am authorized to analyze this recording.</span>
               </label>
 
               <div className="flex flex-wrap items-end gap-3">
@@ -288,9 +360,20 @@ export default function ProtectionPage() {
                     ))}
                   </select>
                 </label>
-                <Button onClick={() => void runAnalysis()} disabled={!file || !consent || stage === 'running'}>
+                <Button
+                  onClick={() => void (inputMode === 'audio' ? runAnalysis() : runTextAnalysis())}
+                  disabled={
+                    !consent ||
+                    stage === 'running' ||
+                    (inputMode === 'audio' ? !file : pastedText.trim().length < 10)
+                  }
+                >
                   <ShieldIcon width={16} height={16} />
-                  {stage === 'running' ? 'Analyzing…' : 'Analyze call'}
+                  {stage === 'running'
+                    ? 'Analyzing…'
+                    : inputMode === 'audio'
+                      ? 'Analyze call'
+                      : 'Analyze transcript'}
                 </Button>
                 {file && (
                   <Button
@@ -341,12 +424,12 @@ export default function ProtectionPage() {
         </div>
 
         <div className="space-y-6">
-          <Card title="Family voice profiles" subtitle="Consented reference recordings only.">
+          <Card
+            title="Family voice profiles"
+            subtitle="Enroll consented reference audio to enable optional family voice matching."
+          >
             {profiles.length === 0 ? (
-              <p className="text-xs leading-relaxed text-ink-faint">
-                No profiles yet. Enroll a family member&apos;s known-good recording to enable an
-                optional voice comparison.
-              </p>
+              <p className="text-xs leading-relaxed text-ink-faint">No profiles enrolled yet.</p>
             ) : (
               <ul className="space-y-2">
                 {profiles.map((p) => (
@@ -409,10 +492,6 @@ export default function ProtectionPage() {
                 {profileBusy ? 'Saving…' : 'Enroll profile (consent required)'}
               </Button>
               {profileMsg && <p className="text-xs text-ink-faint">{profileMsg}</p>}
-              <p className="text-[11px] leading-relaxed text-ink-faint">
-                Only enroll people who have consented. A match is not proof of identity, and a mismatch
-                is not proof of fraud.
-              </p>
             </div>
           </Card>
 
@@ -466,7 +545,8 @@ function ResultPanel({ result, onExport }: { result: ProtectionAnalysis; onExpor
   const aiLabel = result.ai.provider_label ?? 'Gemini'
   const risk = result.risk
   return (
-    <Card
+    <div className="space-y-6">
+      <Card
       title="Analysis result"
       subtitle={`${result.display_name} · ${timeOf(result.created_at)} · ${result.processing_ms} ms`}
       actions={
@@ -481,9 +561,12 @@ function ResultPanel({ result, onExport }: { result: ProtectionAnalysis; onExpor
           <p className="text-sm font-medium text-ink">{result.content.summary}</p>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-3">
-          <StatTile
-            label="Voice authenticity"
+        {result.risk_badges?.length ? <RiskBadgeRow badges={result.risk_badges} /> : null}
+
+        <div className="rounded-xl border border-line bg-surface-2/40 p-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <StatTile
+              label="Voice authenticity"
             value={
               result.voice.suspected_synthetic === null
                 ? '—'
@@ -493,8 +576,10 @@ function ResultPanel({ result, onExport }: { result: ProtectionAnalysis; onExpor
             }
             hint={
               result.voice.calibrated_probability != null
-                ? `Detector score ${(result.voice.calibrated_probability * 100).toFixed(1)}%`
-                : result.voice.status
+                ? `Calibrated detector probability ${(result.voice.calibrated_probability * 100).toFixed(1)}%`
+                : typeof result.voice.score === 'number'
+                  ? `${result.voice.score_label ?? 'Raw detector score'} ${result.voice.score.toFixed(3)} · ${result.voice.score_definition ?? 'not a calibrated probability'}`
+                  : result.voice.status
             }
             tone={result.voice.suspected_synthetic ? 'err' : result.voice.status === 'completed' ? 'ok' : 'neutral'}
           />
@@ -513,6 +598,37 @@ function ResultPanel({ result, onExport }: { result: ProtectionAnalysis; onExpor
             }
             tone={result.content.signal_strength >= 6 ? 'err' : result.content.signal_strength >= 3 ? 'warn' : 'ok'}
           />
+          <StatTile
+            label="Speaker match"
+            value={
+              result.speaker_verification
+                ? result.speaker_verification.match === true
+                  ? 'Match'
+                  : result.speaker_verification.match === false
+                    ? 'Mismatch'
+                    : 'Not verified'
+                : result.speaker_comparison
+                  ? result.speaker_comparison.outcome.replace(/_/g, ' ')
+                  : '—'
+            }
+            hint={
+              result.speaker_verification?.similarity != null
+                ? `similarity ${result.speaker_verification.similarity.toFixed(3)}${
+                    result.speaker_verification.threshold != null
+                      ? ` · threshold ${result.speaker_verification.threshold.toFixed(2)}`
+                      : ''
+                  }`
+                : (result.speaker_verification?.detail ?? 'no family reference supplied')
+            }
+            tone={
+              result.speaker_verification?.match === true
+                ? 'ok'
+                : result.speaker_verification?.match === false
+                  ? 'err'
+                  : 'neutral'
+            }
+          />
+          </div>
         </div>
 
         {/* {aiLabel} contextual analysis — clearly labelled, with honest fallback status */}
@@ -672,24 +788,10 @@ function ResultPanel({ result, onExport }: { result: ProtectionAnalysis; onExpor
           </ul>
         </div>
 
-        <div className="rounded-lg border border-line bg-surface-2 p-3">
-          <p className="text-xs font-semibold text-ink-dim">Limitations</p>
-          <ul className="mt-1 space-y-1 text-xs text-ink-faint">
-            {[...result.warnings, ...result.risk.limitations].map((w, i) => (
-              <li key={i}>{w}</li>
-            ))}
-            <li>
-              A suspicious transcript does not prove a crime occurred; treat results as a signal to
-              verify independently.
-            </li>
-          </ul>
-        </div>
-
-        <p className="border-t border-line/70 pt-3 text-[11px] leading-relaxed text-ink-faint">
-          Model confidence is not a guarantee. A suspicious transcript does not prove a kidnapping
-          occurred, similarity cannot prove identity, and advanced clones can evade detection.
-        </p>
       </div>
     </Card>
+
+      {result.explanation ? <ThreatExplanationCard explanation={result.explanation} /> : null}
+    </div>
   )
 }

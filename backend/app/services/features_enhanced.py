@@ -20,10 +20,26 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
-import librosa
 import numpy as np
 
-from app.services.features import (
+
+def _probe_librosa():
+    """Import librosa, treating a capability stub as absent.
+
+    The serverless build installs a stub whose attribute access raises
+    ImportError; importing it succeeds, so a plain import is not a capability test.
+    """
+    try:
+        import librosa as _lb  # noqa: PLC0415
+        _ = _lb.feature.mfcc  # touch the API we actually call
+        return _lb
+    except Exception:  # ImportError, or the stub raising on attribute access
+        return None
+
+
+librosa = _probe_librosa()
+
+from app.services.features import (  # noqa: E402  (deliberately after the librosa probe)
     FeatureExtractionError,
     _fixed_segment,
     _resample,
@@ -108,6 +124,13 @@ def extract_enhanced_features(
     input. Never returns NaN/Inf.
     """
     config = config or EnhancedFeatureConfig()
+
+    if librosa is None:
+        # Slim serverless build: no librosa, so use the parity-tested numpy
+        # implementation instead of silently degrading to a weaker detector.
+        from app.services.features_numpy import extract_enhanced_features_numpy
+
+        return extract_enhanced_features_numpy(samples, sample_rate, config)
 
     mono = _to_mono_float32(samples)
     if mono.size == 0:

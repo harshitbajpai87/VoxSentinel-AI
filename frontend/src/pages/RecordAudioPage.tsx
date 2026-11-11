@@ -10,7 +10,7 @@ import {
   PageHeader,
   Pill,
 } from '../components/ui'
-import { WaveformIcon, ShieldIcon } from '../components/icons'
+import { WaveformIcon } from '../components/icons'
 import { AnalysisResultPanel } from '../components/audio/AnalysisResultPanel'
 import WindowScoresChart from '../components/audio/WindowScoresChart'
 
@@ -187,7 +187,7 @@ export default function RecordAudioPage() {
     <div className="animate-fade-in">
       <PageHeader
         title="Live Recording"
-        subtitle="Record from the microphone with honest, model-derived risk signals as the audio grows. Provisional scores are computed live; the final verdict always comes from the full clip."
+        subtitle="Record audio from your microphone to monitor real-time risk scores. Final verification is computed upon completion."
         actions={
           phase === 'recording' ? (
             <Pill tone="err" >
@@ -213,11 +213,11 @@ export default function RecordAudioPage() {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+      <div className="space-y-6">
+        <div className="space-y-6">
           <Card
             title="Recorder"
-            subtitle={support.supported ? 'Audio is analyzed locally by the backend and never leaves your machine.' : undefined}
+            subtitle={support.supported ? 'Recorded audio is sent to the configured backend API for scoring.' : undefined}
             actions={
               <span className="font-mono text-sm text-ink-dim">
                 {String(Math.floor(elapsed / 60)).padStart(2, '0')}:
@@ -252,9 +252,11 @@ export default function RecordAudioPage() {
                 onChange={(e) => setPersist(e.target.checked)}
                 className="mt-0.5 h-4 w-4 accent-accent"
               />
-              <span className="text-ink-dim">
-                Save the final analysis to History (uncheck for one-off checks — provisional
-                live windows are never stored either way).
+              <span
+                className="text-ink-dim"
+                title="Provisional live windows are never stored. Only the final full-clip analysis is saved, and only while this box is checked."
+              >
+                Save final analysis to History
               </span>
             </label>
 
@@ -299,36 +301,9 @@ export default function RecordAudioPage() {
 
           {final && (
             <Card title="Final analysis (full recording)">
-              <AnalysisResultPanel record={final} />
+              <AnalysisResultPanel record={final} showDecisionAdvice={false} />
             </Card>
           )}
-        </div>
-
-        <div className="space-y-6">
-          <Callout tone="ethics" title="What live scores mean — and don't">
-            Live window scores come from the same detection model as the full-clip verdict, over
-            the audio recorded so far. They are evidence for a human reviewer, not a verdict:
-            scores on short prefixes can be misleading, and the model only discriminates
-            human vs Piper-TTS synthesis in its current training. It is not a general
-            clone detector.
-          </Callout>
-          <Card title="Privacy while recording">
-            <ul className="space-y-2.5 text-xs leading-relaxed text-ink-dim">
-              <li className="flex items-start gap-2">
-                <ShieldIcon width={14} height={14} className="mt-0.5 shrink-0 text-accent" />
-                Audio is processed only for this analysis; provisional prefixes are computed and
-                discarded, never stored.
-              </li>
-              <li className="flex items-start gap-2">
-                <ShieldIcon width={14} height={14} className="mt-0.5 shrink-0 text-accent" />
-                The final recording is saved to History only when you leave the box checked.
-              </li>
-              <li className="flex items-start gap-2">
-                <ShieldIcon width={14} height={14} className="mt-0.5 shrink-0 text-accent" />
-                Stopping the page or navigating away stops the microphone immediately.
-              </li>
-            </ul>
-          </Card>
         </div>
       </div>
     </div>

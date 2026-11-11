@@ -1,0 +1,49 @@
+{
+  "purpose": "Generated non-speech runtime parity only, not detection accuracy or production deployment verification",
+  "model_version": "20261107_hi",
+  "rows": [
+    {
+      "sample_rate": 8000,
+      "librosa_score": 0.1678952120067771,
+      "slim_features_score": 0.1678952120067771,
+      "absolute_delta": 0.0,
+      "max_feature_absolute_delta": 7.62939453125e-06
+    },
+    {
+      "sample_rate": 16000,
+      "librosa_score": 0.4272971908268321,
+      "slim_features_score": 0.4272971908268321,
+      "absolute_delta": 0.0,
+      "max_feature_absolute_delta": 1.9073486328125e-06
+    },
+    {
+      "sample_rate": 22050,
+      "librosa_score": 0.20602447318273875,
+      "slim_features_score": 0.20602447318273875,
+      "absolute_delta": 0.0,
+      "max_feature_absolute_delta": 1.52587890625e-05
+    },
+    {
+      "sample_rate": 24000,
+      "librosa_score": 0.16493704434191928,
+      "slim_features_score": 0.16493704434191928,
+      "absolute_delta": 0.0,
+      "max_feature_absolute_delta": 1.52587890625e-05
+    },
+    {
+      "sample_rate": 44100,
+      "librosa_score": 0.13514149927646896,
+      "slim_features_score": 0.13514149927646896,
+      "absolute_delta": 0.0,
+      "max_feature_absolute_delta": 1.52587890625e-05
+    },
+    {
+      "sample_rate": 48000,
+      "librosa_score": 0.12899235826856156,
+      "slim_features_score": 0.12899235826856156,
+      "absolute_delta": 0.0,
+      "max_feature_absolute_delta": 1.9073486328125e-06
+    }
+  ],
+  "max_score_delta": 0.0
+}

@@ -1,4 +1,15 @@
 // API contract types — mirrors docs/API_CONTRACT.md (v1).
+import type {
+  PipelineCapabilities,
+  RiskBadge,
+  ThreatExplanation,
+  UnifiedAcousticForensics,
+  UnifiedReasoning,
+  UnifiedScamRisk,
+  UnifiedSpeakerVerification,
+  UnifiedTranscription,
+} from './unified'
+
 // These are the shapes the FastAPI backend will serve (Phase 4).
 // The frontend is written against these types only, never against ad-hoc shapes.
 
@@ -10,6 +21,28 @@ export type RiskCategory =
   | 'high_risk'
   | 'inconclusive'
 
+export interface AudioDecoders {
+  ffmpeg: boolean
+  ffprobe: boolean
+  ffmpeg_version: string | null
+  ffprobe_version: string | null
+  libsndfile: string | null
+  libsndfile_formats: string[]
+  m4a_aac_webm_opus: boolean
+  notes: string[]
+}
+
+/** Additive capability block: lets the UI tell "no decoder" from "offline". */
+export interface AudioCapabilities {
+  decoders: AudioDecoders
+  decodable_extensions: string[]
+  max_upload_bytes: number
+  effective_max_upload_bytes: number
+  hosting_body_limit_bytes: number | null
+  ffmpeg_binary?: string
+  ffprobe_binary?: string
+}
+
 export interface HealthResponse {
   status: 'ok' | 'degraded' | 'down'
   backend_ready: boolean
@@ -17,6 +50,13 @@ export interface HealthResponse {
   speaker_model_ready: boolean
   version: string
   mode: ApiMode
+  // Optional on the client: an older backend may not report these yet.
+  audio_decoder_ready?: boolean
+  max_upload_bytes?: number
+  effective_max_upload_bytes?: number
+  audio?: AudioCapabilities
+  services?: Record<string, boolean>
+  environment?: Record<string, string | boolean>
 }
 
 export interface ModelInfo {
@@ -301,7 +341,7 @@ export interface ProtectionAnalysis {
   status: string
   display_name: string
   size_bytes: number
-  duration_s: number
+  duration_s: number | null
   profile_id: string | null
   profile_name: string | null
   stages: ProtectionStage[]
@@ -314,13 +354,24 @@ export interface ProtectionAnalysis {
   warnings: string[]
   processing_ms: number
   pipeline: Record<string, unknown>
+  /* ---- unified pipeline contract (POST /api/analyze, schema 1.0) ---- */
+  schema_version?: string
+  input_kind?: 'audio' | 'text'
+  transcription?: UnifiedTranscription
+  speaker_verification?: UnifiedSpeakerVerification
+  acoustic_forensics?: UnifiedAcousticForensics
+  scam_risk?: UnifiedScamRisk
+  llm_reasoning?: UnifiedReasoning
+  risk_badges?: RiskBadge[]
+  explanation?: ThreatExplanation
+  units?: Record<string, string>
 }
 
 export interface ProtectionAnalysisSummary {
   id: string
   created_at: string
   display_name: string
-  duration_s: number
+  duration_s: number | null
   status: string
   risk_category: string
   profile_id: string | null

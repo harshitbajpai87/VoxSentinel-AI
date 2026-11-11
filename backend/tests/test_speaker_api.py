@@ -52,6 +52,9 @@ def stub_client(settings):
         StubEmbedder(),
         _thresholds_for_tests(settings, threshold=0.5),
     )
+    # TEST DOUBLE threshold for route behavior; production artifacts require
+    # >=100 non-test calibration pairs and cannot use this fixture metadata.
+    verifier.decision_threshold = lambda: 0.5
     app = create_app(settings=settings, speaker=verifier)
     from fastapi.testclient import TestClient
 
@@ -59,7 +62,9 @@ def stub_client(settings):
         yield client
 
 
-def _thresholds_for_tests(settings: Settings, threshold: float) -> SimilarityThresholds:
+def _thresholds_for_tests(
+    settings: Settings, threshold: float, placeholder: bool = False
+) -> SimilarityThresholds:
     import json
 
     path = Path(settings.speaker_thresholds_path)
@@ -69,8 +74,12 @@ def _thresholds_for_tests(settings: Settings, threshold: float) -> SimilarityThr
         "artifact_version": 1,
         "metric": "cosine_similarity",
         "eer_threshold": threshold,
-        "calibrated_on": "TEST FIXTURE (not real calibration data)",
-        "calibration_pairs": 0,
+        "calibrated_on": (
+            "TEST FIXTURE (not real calibration data)"
+            if placeholder
+            else "unit-test synthetic embedding pairs"
+        ),
+        "calibration_pairs": 0 if placeholder else 2,
         "created_at": "1970-01-01T00:00:00+00:00",
     }))
     return SimilarityThresholds(str(path))
@@ -135,12 +144,30 @@ def test_borderline_similarity_is_inconclusive(settings):
         StubEmbedder(preset_vectors=[a, b]),
         _thresholds_for_tests(settings, 0.7071),
     )
+    verifier.decision_threshold = lambda: 0.7071
     result = verifier.compare(np.ones(16000, dtype=np.float32) * 0.5, 16000,
                               np.ones(16000, dtype=np.float32) * 0.5, 16000)
     similarity = float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
     assert abs(similarity - 0.7071) < 0.03
     assert result.outcome == "inconclusive"
     assert result.similarity == pytest.approx(similarity, abs=1e-6)
+
+
+def test_placeholder_threshold_reports_similarity_without_decision(settings):
+    verifier = EcapaSpeakerVerifier(
+        StubEmbedder(), _thresholds_for_tests(settings, 0.5, placeholder=True)
+    )
+    result = verifier.compare(
+        np.ones(16000, dtype=np.float32) * 0.5,
+        16000,
+        np.ones(16000, dtype=np.float32) * 0.5,
+        16000,
+    )
+    assert result.status == "completed"
+    assert result.similarity == pytest.approx(1.0)
+    assert result.threshold is None
+    assert result.outcome is None
+    assert any("non-placeholder calibration" in warning for warning in result.warnings)
 
 
 def test_missing_consent_is_rejected(stub_client):

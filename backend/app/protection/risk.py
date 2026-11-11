@@ -54,6 +54,76 @@ _ACTION_PRESERVE = "Preserve call details and the recording when it is safe and 
 
 
 def assess(inp: SignalInput) -> RiskAssessment:
+    """Finalize independent authenticity and conversation-safety evidence.
+
+    A usable synthetic signal imposes a MEDIUM verification floor even for
+    benign/educational content. It is not proof of scam intent and cannot by
+    itself cause HIGH or CRITICAL. Every contextual early return passes here.
+    Missing voice analysis is never interpreted as evidence of authenticity.
+    """
+    result = _assess_conversation(inp)
+    result.reasoning.insert(
+        0, f"Conversation safety assessment before the independent voice warning: {result.category}."
+    )
+    if inp.synthetic_suspected is True:
+        result.reasoning.append("Voice authenticity independently indicates possible synthetic speech.")
+        result.limitations.append(
+            "Synthetic speech is not proof of scam intent; legitimate uses exist "
+            "and detector errors are possible."
+        )
+        if result.category == "LOW":
+            result.category = "MEDIUM"
+        if result.category == "MEDIUM":
+            result.reasoning.append(
+                "The voice signal warrants independent verification, not a HIGH or CRITICAL scam verdict."
+            )
+            if _ACTION_VERIFY not in result.recommended_actions:
+                result.recommended_actions.append(_ACTION_VERIFY)
+        if inp.gemini_status == "completed" and (inp.gemini_classification or "").upper() in {
+            "LIKELY_LEGITIMATE",
+            "EDUCATIONAL_OR_DISCUSSION",
+        }:
+            result.reasoning.append(
+                "Evidence conflict: contextual analysis describes benign content while voice analysis "
+                "flags possible synthesis. These address different questions; neither cancels the other."
+            )
+    elif inp.synthetic_suspected is False:
+        result.reasoning.append(
+            "Voice analysis found no strong evidence of synthetic speech; "
+            "this does not establish caller identity or safety."
+        )
+    else:
+        result.reasoning.append("Voice authenticity could not be assessed for this recording.")
+        result.limitations.append("Unavailable voice analysis is not evidence that the voice is genuine.")
+    if inp.synthetic_note:
+        result.limitations.append(inp.synthetic_note)
+    if (
+        inp.gemini_status == "completed"
+        and (inp.gemini_classification or "").upper() in {"LIKELY_LEGITIMATE", "EDUCATIONAL_OR_DISCUSSION"}
+        and inp.signal_strength >= 7
+    ):
+        result.reasoning.append(
+            "Evidence conflict: strong rule-based content indicators disagree with the benign contextual "
+            "classification; review the transcript and matched evidence rather than assuming certainty."
+        )
+    if inp.speaker_outcome == "not_consistent_with_reference":
+        result.reasoning.append("The recording is not consistent with the enrolled family voice reference.")
+    elif inp.speaker_outcome == "consistent_with_reference":
+        result.reasoning.append(
+            "The recording is consistent with the enrolled family voice reference (not proof of identity)."
+        )
+    elif inp.speaker_outcome == "inconclusive":
+        result.reasoning.append("Family voice comparison was inconclusive.")
+    elif inp.speaker_outcome == "reference_unavailable":
+        result.reasoning.append("No authorized family voice reference was available for comparison.")
+    result.limitations.append(
+        "Voice similarity cannot prove identity, and a suspicious transcript "
+        "does not by itself prove a crime."
+    )
+    return result
+
+
+def _assess_conversation(inp: SignalInput) -> RiskAssessment:
     reasoning: list[str] = []
     actions: list[str] = []
     limitations: list[str] = []
@@ -69,7 +139,9 @@ def assess(inp: SignalInput) -> RiskAssessment:
     g_cats = {c.upper() for c in inp.gemini_categories}
     label = (inp.llm_label or "Contextual AI").strip() or "Contextual AI"
     gemini_ok = inp.gemini_status == "completed" and bool(g_cls)
-    ransom_combo = bool(g_cats & {"KIDNAPPING_OR_RANSOM", "FAMILY_EMERGENCY", "EXTORTION_OR_THREATS"})
+    # A broad category such as FAMILY_EMERGENCY does not prove ransom, a
+    # payment demand, or immediate danger. CRITICAL requires the provider's
+    # explicit critical severity; category-only scam findings remain HIGH.
     credential_combo = bool(
         g_cats
         & {
@@ -95,10 +167,10 @@ def assess(inp: SignalInput) -> RiskAssessment:
                 "identified risk from meaning and context."
             )
 
-        if g_cls == "LIKELY_SCAM" and (g_risk == "CRITICAL" or ransom_combo):
+        if g_cls == "LIKELY_SCAM" and g_risk == "CRITICAL":
             reasoning.append(
-                "The combination of a claimed family emergency, a payment demand and coercive pressure "
-                "supports a critical protective warning."
+                f"{label} rated this likely-scam transcript as CRITICAL; verify the claims "
+                "through a known channel because model output is not proof of a crime."
             )
             return RiskAssessment(
                 "CRITICAL",
@@ -115,18 +187,14 @@ def assess(inp: SignalInput) -> RiskAssessment:
                 limitations,
             )
         if g_cls == "SUSPICIOUS":
-            cat = "HIGH" if (credential_combo or ransom_combo) else "MEDIUM"
+            cat = "HIGH" if (credential_combo or g_risk in {"HIGH", "CRITICAL"}) else "MEDIUM"
             return RiskAssessment(cat, reasoning, [_ACTION_VERIFY, _ACTION_SECRETS], limitations)
         if g_cls == "EDUCATIONAL_OR_DISCUSSION":
             reasoning.append(
                 "Context indicates a discussion, warning or educational content rather than an active demand."
             )
-            cat = "MEDIUM" if inp.synthetic_suspected is True else "LOW"
-            if inp.synthetic_suspected is True:
-                reasoning.append("Voice analysis still flags possible synthetic speech; treat with caution.")
-            return RiskAssessment(cat, reasoning, [] if cat == "LOW" else [_ACTION_VERIFY], limitations)
-        # LIKELY_LEGITIMATE / INCONCLUSIVE fall through to the rule-based policy,
-        # which may still escalate on strong local evidence.
+            return RiskAssessment("LOW", reasoning, [], limitations)
+        # Benign/inconclusive contextual results do not veto strong rule evidence.
         if g_cls == "INCONCLUSIVE":
             reasoning.append(
                 f"{label} could not classify the content reliably; the rule baseline still applies."
@@ -137,24 +205,6 @@ def assess(inp: SignalInput) -> RiskAssessment:
             f"{label} contextual analysis was not available for this request; "
             "this assessment relies on the rule-based content baseline."
         )
-
-    if inp.synthetic_suspected is True:
-        reasoning.append("Voice analysis found characteristics consistent with synthetic speech.")
-    elif inp.synthetic_suspected is False:
-        reasoning.append("Voice analysis found no strong evidence of synthetic speech.")
-    else:
-        reasoning.append("Voice authenticity could not be assessed for this recording.")
-
-    if inp.speaker_outcome == "not_consistent_with_reference":
-        reasoning.append("The recording is not consistent with the enrolled family voice reference.")
-    elif inp.speaker_outcome == "consistent_with_reference":
-        reasoning.append(
-            "The recording is consistent with the enrolled family voice reference (not proof of identity)."
-        )
-    elif inp.speaker_outcome == "inconclusive":
-        reasoning.append("Family voice comparison was inconclusive.")
-    elif inp.speaker_outcome == "reference_unavailable":
-        reasoning.append("No authorized family voice reference was available for comparison.")
 
     serious_content = (
         inp.flags.get("ransom_or_kidnapping")
@@ -167,31 +217,27 @@ def assess(inp: SignalInput) -> RiskAssessment:
         reasoning.append("Speech transcription was unavailable, so content could not be verified.")
 
     # --- Policy ------------------------------------------------------------
-    if inp.transcription_status != "completed" and inp.synthetic_suspected is None:
+    if inp.transcription_status != "completed" and inp.synthetic_suspected is not True:
         category = "INCONCLUSIVE"
-        reasoning.append("Neither content analysis nor voice analysis produced usable evidence.")
+        reasoning.append(
+            "Content analysis produced no usable evidence, and voice analysis supplied no positive warning."
+        )
         actions.append("Retry with a clearer recording, or verify the caller by calling back a known number.")
         limitations.append("No conclusion can be drawn from this recording; this is not a clean result.")
         return RiskAssessment(category, reasoning, actions, limitations)
 
     synthetic = inp.synthetic_suspected is True
 
-    if serious_content and content_high and (synthetic or inp.flags.get("payment_demand") or threat):
+    if serious_content and content_high and (inp.flags.get("payment_demand") or threat):
         # CRITICAL needs contextual evidence, never a keyword: either a
-        # synthetic voice asking for money, an explicit threat, or a ransom
+        # explicit threat, or a ransom
         # demand paired with instructions to stay silent / avoid the police.
         ransom_with_coercion = bool(
             inp.flags.get("ransom_or_kidnapping")
             and inp.flags.get("payment_demand")
             and inp.flags.get("secrecy_or_urgency")
         )
-        category = (
-            "CRITICAL"
-            if (synthetic and inp.flags.get("payment_demand"))
-            or inp.flags.get("threat")
-            or ransom_with_coercion
-            else "HIGH"
-        )
+        category = "CRITICAL" if inp.flags.get("threat") or ransom_with_coercion else "HIGH"
     elif content_high:
         category = "HIGH"
     elif content_mid and (serious_content or threat):
@@ -200,9 +246,33 @@ def assess(inp: SignalInput) -> RiskAssessment:
         category = "LOW"
         reasoning.append("Scam-related words appeared only in a discussion/awareness context.")
     elif content_low:
+        # Calibration: 1-2/10 is usually one ordinary word in an everyday
+        # sentence ("I sent my son money for books"). Treating that as MEDIUM
+        # produced false alarms on ordinary family calls, which teaches people
+        # to ignore the warning. From 3/10 there is at least one corroborated
+        # suspicious pattern, which deserves a verify-first verdict.
+        if inp.signal_strength >= 3:
+            category = "MEDIUM"
+            reasoning.append(
+                "A corroborated suspicious pattern was found, but the surrounding "
+                "context is not conclusive."
+            )
+        else:
+            category = "LOW"
+            reasoning.append(
+                "A single ordinary phrase matched a scam pattern, with no supporting "
+                "indicator; this is not treated as a scam signal."
+            )
+    elif content_mid and inp.flags.get("scam_category_present"):
+        # A concrete fraud category was matched repeatedly (fee demand, courier
+        # or customs pretext, remote-access request, job/prize lure) without the
+        # ransom/OTP/bank-coercion flags. That is a real script, so it must not
+        # fall through to LOW just because the "serious" flags are absent.
         category = "MEDIUM"
-    elif synthetic:
-        category = "MEDIUM"
+        reasoning.append(
+            "The transcript matched a concrete fraud script, but the strongest "
+            "coercion indicators were not present."
+        )
     else:
         category = "LOW"
 
@@ -228,7 +298,7 @@ def assess(inp: SignalInput) -> RiskAssessment:
             "Confirm the caller's identity through an independent, trusted channel before acting.",
         ]
     elif category == "LOW":
-        reasoning.append("No strong scam or synthetic-voice indicators were found.")
+        reasoning.append("No strong conversation-level scam indicators were found.")
         actions.append("Stay cautious: a clean result does not guarantee the call is genuine.")
 
     if synthetic:

@@ -54,7 +54,7 @@ class DetectorResult:
     # contributions). None when the model supports no explanation method.
     explanation: str | None = None
     # Window-level evidence scores from the same model (Module 6). Empty when
-    # the clip is shorter than one model segment. Evidence, not the official score.
+    # extraction fails for all windows. Evidence, not the official score.
     window_scores: tuple[dict, ...] = ()
 
 
@@ -216,29 +216,44 @@ class TrainedVoiceDetector(BaseVoiceDetector):
         score = self.score_features(features)
 
         # Window-level evidence (Module 6): the SAME model applied to
-        # consecutive fixed segments. Honest attribution — the official
+        # overlapping, bounded segments. Honest attribution — the official
         # result remains the whole-clip score above.
         window_scores = self._window_scores(samples, sample_rate)
 
         explanation: str | None = None
         if self._explanation_fn is not None:
             try:
-                scaled = self._np.asarray(features).reshape(1, -1)
+                scaled = self._scaler.transform(
+                    self._np.asarray(features).reshape(1, -1)
+                )
                 explanation = str(self._explanation_fn(features, scaled))
             except Exception:  # noqa: BLE001 - explanations must never break inference
                 explanation = None
+        else:
+            explanation = self._occlusion_explanation(features, score)
+
+        ood_warning = self._feature_space_warning(features)
+        if ood_warning is not None:
+            explanation = f"{explanation}\n{ood_warning}" if explanation else ood_warning
 
         return DetectorResult(
             raw_score=score,
             raw_score_definition=(
+                "Estimated P(synthetic) from the explicitly calibrated classifier; "
+                "calibration is limited to the artifact's validation distribution."
+                if self._calibrated else
                 "Estimated P(synthetic) from the classifier (uncalibrated; "
                 "treat as a ranking score, not a validated probability)."
             ),
             # A probability is reported ONLY when the artifact carries an
             # explicit calibration; otherwise it stays None (never invented).
             calibrated_probability=score if self._calibrated else None,
-            uncertainty=None,  # no uncertainty method implemented yet
-            uncertainty_method=None,
+            uncertainty=1.0 - 2.0 * abs(score - 0.5),
+            uncertainty_method=(
+                "Classifier margin: 1 - 2*abs(p - 0.5). Higher means nearer the "
+                "decision boundary; this is NOT a validated error probability and "
+                "does not measure out-of-distribution uncertainty."
+            ),
             model_name=self._model_name,
             model_version=self._model_version,
             model_mode=self._model_mode,
@@ -255,11 +270,96 @@ class TrainedVoiceDetector(BaseVoiceDetector):
             return extract_enhanced_features
         return extract_features
 
-    def _window_scores(self, samples: np.ndarray, sample_rate: int) -> tuple[dict, ...]:
-        """Score consecutive segment-length windows with the same model.
+    def _occlusion_explanation(self, features: np.ndarray, original_score: float) -> str | None:
+        """Actual grouped replacement sensitivity, requiring fitted means.
 
-        Returns () when the clip is shorter than one segment. These are
-        EVIDENCE for the explainability panel — not a causal claim.
+        At most five additional predictions, with no sampling or invented
+        contributions. These perturbations need not represent plausible audio
+        and are not additive attributions or causal evidence.
+        """
+        try:
+            vector = self._np.asarray(features, dtype=float).reshape(-1)
+            mean = self._np.asarray(self._scaler.mean_, dtype=float)
+            if (mean.ndim != 1 or mean.shape != vector.shape
+                    or not self._np.isfinite(mean).all()
+                    or not self._np.isfinite(vector).all()):
+                return None
+            n = self._config.n_mfcc
+            if not isinstance(n, int) or n <= 0:
+                return None
+            groups = [("MFCC means", 0, n), ("MFCC standard deviations", n, 2 * n)]
+            expected = 2 * n
+            if self._feature_kind == "mfcc_enhanced":
+                if self._config.include_delta_mfcc:
+                    groups.extend([
+                        ("delta-MFCC means", expected, expected + n),
+                        ("delta-MFCC standard deviations", expected + n, expected + 2 * n),
+                    ])
+                    expected += 2 * n
+                if self._config.include_spectral_shape:
+                    groups.append(("spectral shape", expected, expected + 11))
+                    expected += 11
+            elif self._feature_kind != "mfcc_baseline":
+                return None
+            if vector.size != expected:
+                return None  # unknown feature layout: never guess group boundaries
+            changes = []
+            for label, start, end in groups:
+                replaced = vector.copy()
+                replaced[start:end] = mean[start:end]
+                occluded_score = self.score_features(replaced)
+                changes.append(f"{label}: {occluded_score - original_score:+.6g}")
+            return (
+                "Grouped feature-occlusion sensitivity (replacement score minus "
+                "original score): " + "; ".join(changes)
+                + ". Each group was replaced by fitted scaler training means; "
+                "other features were held fixed. These are actual model score "
+                "changes, not causal proof or additive contributions; replacement "
+                "vectors may not correspond to realistic audio."
+            )
+        except Exception:  # optional XAI must not break valid inference
+            return None
+
+    def _feature_space_warning(self, features: np.ndarray) -> str | None:
+        """Conservative marginal-distance heuristic, not a validated OOD test.
+
+        Use only fitted training statistics, never the current upload as a
+        reference distribution. Missing/malformed scaler statistics do not
+        justify claiming either in-distribution or out-of-distribution input.
+        Constant training dimensions use unit scale, as StandardScaler does.
+        """
+        try:
+            mean = self._np.asarray(self._scaler.mean_, dtype=float).reshape(-1)
+            scale = self._np.asarray(self._scaler.scale_, dtype=float).reshape(-1)
+            vector = self._np.asarray(features, dtype=float).reshape(-1)
+            if (mean.size != vector.size or scale.size != vector.size
+                    or not mean.size or not self._np.isfinite(mean).all()
+                    or not self._np.isfinite(scale).all() or (scale <= 0).any()
+                    or not self._np.isfinite(vector).all()):
+                return None
+            with self._np.errstate(over="ignore", invalid="ignore"):
+                distance = self._np.abs((vector - mean) / scale)
+            # Six fitted marginal training-scale units is a deliberately
+            # conservative heuristic, not a learned cutoff or coverage bound.
+            if not (distance > 6.0).any():
+                return None
+        except (AttributeError, TypeError, ValueError):
+            return None
+        return (
+            "Feature-space warning: at least one input feature is more than six "
+            "fitted training-scale units from the scaler mean. This "
+            "heuristic suggests possible out-of-distribution audio; it is not a "
+            "validated OOD test or an error probability. A confident classifier "
+            "score can still be unreliable."
+        )
+
+    def _window_scores(self, samples: np.ndarray, sample_rate: int) -> tuple[dict, ...]:
+        """Score segment-bounded windows with 50% overlap and a final tail.
+
+        Short and trailing windows are padded by the shared extractor only;
+        their timestamps describe real samples, never synthetic padding.
+        The official score still comes from the existing whole-clip path
+        (whose extractor takes the first model segment), not these windows.
         """
         from app.services.features import (
             FeatureExtractionError,
@@ -267,29 +367,33 @@ class TrainedVoiceDetector(BaseVoiceDetector):
             _to_mono_float32,
         )
 
-        # Resample to the model rate FIRST, then slice consecutive
-        # segment-length windows (the model was trained on fixed segments).
-        mono = _to_mono_float32(samples if samples.ndim == 1 else samples.mean(axis=1))
+        mono = _to_mono_float32(samples)
         mono = _resample(mono, sample_rate, self._config.target_sample_rate)
-        segment = int(self._config.target_sample_rate * self._config.segment_seconds)
+        rate = self._config.target_sample_rate
+        segment = int(round(rate * self._config.segment_seconds))
+        if segment <= 0 or rate <= 0:
+            raise DetectorInferenceError("Invalid detector window configuration.")
+        hop = max(1, segment // 2)
         windows: list[dict] = []
         extract_fn = self._extractor()
         start = 0
-        while start + segment <= mono.size:
+        # Preserve the source duration even if the resampler rounds up by one
+        # sample. No reported endpoint may exceed the real recording length.
+        duration = len(samples) / sample_rate
+        while start < mono.size:
+            end = min(start + segment, mono.size)
             try:
-                feats = extract_fn(
-                    mono[start : start + segment],
-                    self._config.target_sample_rate,
-                    self._config,
-                )
+                feats = extract_fn(mono[start:end], rate, self._config)
                 windows.append({
-                    "start_s": round(start / self._config.target_sample_rate, 3),
-                    "end_s": round((start + segment) / self._config.target_sample_rate, 3),
+                    "start_s": start / rate,
+                    "end_s": duration if end == mono.size else min(end / rate, duration),
                     "score": self.score_features(feats),
                 })
             except (FeatureExtractionError, DetectorInferenceError):
                 pass  # one bad window must not fail the whole analysis
-            start += segment
+            if end == mono.size:
+                break
+            start += hop
         return tuple(windows)
 
     def score_features(self, features: np.ndarray) -> float:

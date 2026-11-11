@@ -114,6 +114,11 @@ def settings(tmp_path) -> Settings:
         # Isolate from any REAL models installed under backend/models/ so the
         # honest "no model installed" tests are reproducible on every machine.
         speaker_model_dir=str(tmp_path / "missing-speaker-dir"),
+        # The torch-free fallbacks are OFF here so this fixture keeps describing
+        # a build with nothing available at all. Their behaviour is covered by
+        # tests/test_fallbacks.py with the flags enabled.
+        forensics_enabled=False,
+        mfcc_speaker_enabled=False,
     )
 
 

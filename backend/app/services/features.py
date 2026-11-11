@@ -12,8 +12,23 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
-import librosa
-import numpy as np
+
+def _probe_librosa():
+    """Import librosa, treating a capability stub as absent.
+
+    The serverless build installs a stub whose attribute access raises
+    ImportError; importing it succeeds, so a plain import is not a capability test.
+    """
+    try:
+        import librosa as _lb  # noqa: PLC0415
+        _ = _lb.feature.mfcc  # touch the API we actually call
+        return _lb
+    except Exception:  # ImportError, or the stub raising on attribute access
+        return None
+
+
+librosa = _probe_librosa()
+import numpy as np  # noqa: E402  (deliberately after the librosa probe)
 
 
 class FeatureExtractionError(RuntimeError):
@@ -68,6 +83,10 @@ def _resample(samples: np.ndarray, orig_sr: int, target_sr: int) -> np.ndarray:
         return samples
     if orig_sr <= 0:
         raise FeatureExtractionError(f"Invalid source sample rate: {orig_sr}")
+    if librosa is None:
+        from app.services.features_numpy import resample_numpy
+
+        return resample_numpy(samples.astype(np.float32), orig_sr, target_sr)
     return librosa.resample(samples.astype(np.float32), orig_sr=orig_sr, target_sr=target_sr)
 
 
@@ -104,6 +123,11 @@ def extract_features(
     mono = _resample(mono, sample_rate, config.target_sample_rate)
     segment = _fixed_segment(mono, config.target_sample_rate, config.segment_seconds)
 
+    if librosa is None:  # pragma: no cover - slim build has no MFCC-v1 model
+        raise FeatureExtractionError(
+            "The MFCC (non-enhanced) extractor needs librosa, which is not installed "
+            "in this build. Use the enhanced feature path instead."
+        )
     mfcc = librosa.feature.mfcc(
         y=segment,
         sr=config.target_sample_rate,

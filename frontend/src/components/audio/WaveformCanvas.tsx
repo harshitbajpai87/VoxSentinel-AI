@@ -72,7 +72,7 @@ export function WaveformCanvas({
 
     // Playhead.
     if (progress > 0 && progress < 1) {
-      ctx.fillStyle = '#17213D'
+      ctx.fillStyle = '#713F60'
       ctx.fillRect(playedX, 0, 1.5, h)
     }
   }, [peaks, progress, width, height])

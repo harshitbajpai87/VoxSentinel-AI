@@ -90,6 +90,10 @@ class GrokScamClassifier:
         return self._config.configured
 
     provider_key = "xai"
+    # Adapters that reuse this transport override these two so their status
+    # codes and retry budgets stay truthful to the provider that was called.
+    code_prefix = "grok"
+    max_attempts = 3
 
     @property
     def provider_label(self) -> str:
@@ -144,7 +148,7 @@ class GrokScamClassifier:
             return None, _status(
                 "unavailable",
                 provider=self.provider_key,
-                code="grok_not_configured",
+                code=f"{self.code_prefix}_not_configured",
                 detail="XAI_API_KEY is not configured on the server.",
             )
 
@@ -159,16 +163,18 @@ class GrokScamClassifier:
 
         payload = self._payload(cleaned, language)
         started = time.perf_counter()
-        last_code = "grok_error"
-        last_detail = "Grok request failed."
+        last_code = f"{self.code_prefix}_error"
+        last_detail = f"{self.provider_label} request failed."
 
-        for attempt in range(3):
+        for attempt in range(self.max_attempts):
             try:
                 response = self._post(payload)
             except httpx.TimeoutException:
-                last_code, last_detail = "grok_timeout", "The Grok request timed out."
+                last_code = f"{self.code_prefix}_timeout"
+                last_detail = f"The {self.provider_label} request timed out."
             except httpx.HTTPError:
-                last_code, last_detail = "grok_unreachable", "Cannot reach the Grok API."
+                last_code = f"{self.code_prefix}_unreachable"
+                last_detail = f"Cannot reach the {self.provider_label} API."
             else:
                 if response.status_code == 200:
                     try:
@@ -178,9 +184,9 @@ class GrokScamClassifier:
                     except (KeyError, ValueError, TypeError, json.JSONDecodeError):
                         return None, _status(
                             "failed",
-                            code="grok_malformed_response",
+                            code=f"{self.code_prefix}_malformed_response",
                             latency_ms=int((time.perf_counter() - started) * 1000),
-                            detail="Grok returned a response that was not valid JSON.",
+                            detail=f"{self.provider_label} returned a response that was not valid JSON.",
                         )
                     return (
                         {
@@ -198,30 +204,39 @@ class GrokScamClassifier:
 
                 if response.status_code in PERMANENT_STATUSES:
                     code = {
-                        400: "grok_bad_request",
-                        401: "grok_auth_failed",
-                        403: "grok_forbidden",
-                        404: "grok_model_unavailable",
+                        400: f"{self.code_prefix}_bad_request",
+                        401: f"{self.code_prefix}_auth_failed",
+                        403: f"{self.code_prefix}_forbidden",
+                        404: f"{self.code_prefix}_model_unavailable",
                     }[response.status_code]
                     return None, _status(
                         "failed",
                         provider=self.provider_key,
                         code=code,
                         latency_ms=int((time.perf_counter() - started) * 1000),
-                        detail="Grok rejected the request. Check the API key and model name.",
+                        detail=(
+                            f"{self.provider_label} rejected the request. "
+                            "Check the API key and model name."
+                        ),
                     )
 
                 if response.status_code in RETRY_STATUSES:
                     if response.status_code == 429:
-                        last_code = "grok_rate_limited"
-                        last_detail = "Grok rate limit or quota reached. Rule-based fallback used."
+                        last_code = f"{self.code_prefix}_rate_limited"
+                        last_detail = (
+                            f"{self.provider_label} rate limit or quota reached. "
+                            "Rule-based fallback used."
+                        )
                     else:
-                        last_code = "grok_error"
-                        last_detail = "Grok returned an error. Rule-based fallback used."
+                        last_code = f"{self.code_prefix}_error"
+                        last_detail = (
+                            f"{self.provider_label} returned an error. Rule-based fallback used."
+                        )
                 else:
-                    last_code, last_detail = "grok_error", "Unexpected Grok response."
+                    last_code = f"{self.code_prefix}_error"
+                last_detail = f"Unexpected {self.provider_label} response."
 
-            if attempt < 2:
+            if attempt < self.max_attempts - 1:
                 time.sleep(min(2.0, 0.5 * (2**attempt)))
 
         return None, _status("failed", provider=self.provider_key, code=last_code, detail=last_detail)
@@ -242,9 +257,9 @@ class GrokScamClassifier:
             return None, _status(
                 "failed",
                 provider=self.provider_key,
-                code="grok_schema_invalid",
+                code=f"{self.code_prefix}_schema_invalid",
                 latency_ms=call["latency_ms"],
-                detail="Grok output did not match the required schema.",
+                detail=f"{self.provider_label} output did not match the required schema.",
             )
 
         haystack = _normalise(transcript)

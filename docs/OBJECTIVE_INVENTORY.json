@@ -1,0 +1,1658 @@
+{
+  "scope": "Original numbered requirements, excluding historical conversation and later repeated instructions. No global completion percentage asserted.",
+  "objective_count": 206,
+  "objectives": [
+    {
+      "id": "M1-01",
+      "module": "MODULE 1: AUDIO UPLOAD AND PROCESSING",
+      "section": "Objectives",
+      "objective": "Upload audio recordings in supported formats.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M1-02",
+      "module": "MODULE 1: AUDIO UPLOAD AND PROCESSING",
+      "section": "Objectives",
+      "objective": "Validate file type, file size, and audio integrity.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M1-03",
+      "module": "MODULE 1: AUDIO UPLOAD AND PROCESSING",
+      "section": "Objectives",
+      "objective": "Handle corrupted, empty, unsupported, and excessively long recordings.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M1-04",
+      "module": "MODULE 1: AUDIO UPLOAD AND PROCESSING",
+      "section": "Objectives",
+      "objective": "Process audio consistently before analysis.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M1-05",
+      "module": "MODULE 1: AUDIO UPLOAD AND PROCESSING",
+      "section": "Objectives",
+      "objective": "Convert audio into the required sample rate and format.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M1-06",
+      "module": "MODULE 1: AUDIO UPLOAD AND PROCESSING",
+      "section": "Objectives",
+      "objective": "Perform audio normalization where appropriate.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M1-07",
+      "module": "MODULE 1: AUDIO UPLOAD AND PROCESSING",
+      "section": "Objectives",
+      "objective": "Handle mono and stereo recordings.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M1-08",
+      "module": "MODULE 1: AUDIO UPLOAD AND PROCESSING",
+      "section": "Objectives",
+      "objective": "Handle different recording durations.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M1-09",
+      "module": "MODULE 1: AUDIO UPLOAD AND PROCESSING",
+      "section": "Objectives",
+      "objective": "Detect silent or low-quality recordings.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M1-10",
+      "module": "MODULE 1: AUDIO UPLOAD AND PROCESSING",
+      "section": "Objectives",
+      "objective": "Handle background noise and compressed audio.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M1-11",
+      "module": "MODULE 1: AUDIO UPLOAD AND PROCESSING",
+      "section": "Objectives",
+      "objective": "Provide meaningful errors for invalid audio.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M1-12",
+      "module": "MODULE 1: AUDIO UPLOAD AND PROCESSING",
+      "section": "Objectives",
+      "objective": "Ensure uploaded audio is actually passed to the analysis pipeline.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M2-01",
+      "module": "MODULE 2: AUDIO FEATURE EXTRACTION",
+      "section": "Required objectives",
+      "objective": "Extract Mel-Frequency Cepstral Coefficients (MFCCs).",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M2-02",
+      "module": "MODULE 2: AUDIO FEATURE EXTRACTION",
+      "section": "Required objectives",
+      "objective": "Extract Mel spectrogram features.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M2-03",
+      "module": "MODULE 2: AUDIO FEATURE EXTRACTION",
+      "section": "Required objectives",
+      "objective": "Extract relevant spectral features.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M2-04",
+      "module": "MODULE 2: AUDIO FEATURE EXTRACTION",
+      "section": "Required objectives",
+      "objective": "Extract zero-crossing rate.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M2-05",
+      "module": "MODULE 2: AUDIO FEATURE EXTRACTION",
+      "section": "Required objectives",
+      "objective": "Extract spectral centroid.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M2-06",
+      "module": "MODULE 2: AUDIO FEATURE EXTRACTION",
+      "section": "Required objectives",
+      "objective": "Extract spectral bandwidth.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M2-07",
+      "module": "MODULE 2: AUDIO FEATURE EXTRACTION",
+      "section": "Required objectives",
+      "objective": "Extract spectral roll-off.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M2-08",
+      "module": "MODULE 2: AUDIO FEATURE EXTRACTION",
+      "section": "Required objectives",
+      "objective": "Extract pitch and fundamental frequency where appropriate.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M2-09",
+      "module": "MODULE 2: AUDIO FEATURE EXTRACTION",
+      "section": "Required objectives",
+      "objective": "Extract energy and amplitude characteristics.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M2-10",
+      "module": "MODULE 2: AUDIO FEATURE EXTRACTION",
+      "section": "Required objectives",
+      "objective": "Capture relevant voice characteristics and temporal patterns.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M2-11",
+      "module": "MODULE 2: AUDIO FEATURE EXTRACTION",
+      "section": "Required objectives",
+      "objective": "Prepare features in the correct format for model inference.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M2-12",
+      "module": "MODULE 2: AUDIO FEATURE EXTRACTION",
+      "section": "Required objectives",
+      "objective": "Handle missing or invalid feature values.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M2-13",
+      "module": "MODULE 2: AUDIO FEATURE EXTRACTION",
+      "section": "Required objectives",
+      "objective": "Ensure feature extraction works consistently across different recordings.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M3-01",
+      "module": "MODULE 3: SYNTHETIC VOICE AND DEEPFAKE DETECTION",
+      "section": "Required objectives",
+      "objective": "Distinguish genuine human speech from potentially synthetic or manipulated speech.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M3-02",
+      "module": "MODULE 3: SYNTHETIC VOICE AND DEEPFAKE DETECTION",
+      "section": "Required objectives",
+      "objective": "Detect AI-generated voice recordings.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M3-03",
+      "module": "MODULE 3: SYNTHETIC VOICE AND DEEPFAKE DETECTION",
+      "section": "Required objectives",
+      "objective": "Detect cloned voice recordings.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M3-04",
+      "module": "MODULE 3: SYNTHETIC VOICE AND DEEPFAKE DETECTION",
+      "section": "Required objectives",
+      "objective": "Identify suspicious voice characteristics and artifacts.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M3-05",
+      "module": "MODULE 3: SYNTHETIC VOICE AND DEEPFAKE DETECTION",
+      "section": "Required objectives",
+      "objective": "Support supervised classification.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M3-06",
+      "module": "MODULE 3: SYNTHETIC VOICE AND DEEPFAKE DETECTION",
+      "section": "Required objectives",
+      "objective": "Integrate an actual trained deep-learning model.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M3-07",
+      "module": "MODULE 3: SYNTHETIC VOICE AND DEEPFAKE DETECTION",
+      "section": "Required objectives",
+      "objective": "Provide a genuine-versus-synthetic classification result.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M3-08",
+      "module": "MODULE 3: SYNTHETIC VOICE AND DEEPFAKE DETECTION",
+      "section": "Required objectives",
+      "objective": "Provide a synthetic speech probability or confidence score.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M3-09",
+      "module": "MODULE 3: SYNTHETIC VOICE AND DEEPFAKE DETECTION",
+      "section": "Required objectives",
+      "objective": "Identify suspicious or manipulated audio.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M3-10",
+      "module": "MODULE 3: SYNTHETIC VOICE AND DEEPFAKE DETECTION",
+      "section": "Required objectives",
+      "objective": "Handle recordings that are inconclusive.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M3-11",
+      "module": "MODULE 3: SYNTHETIC VOICE AND DEEPFAKE DETECTION",
+      "section": "Required objectives",
+      "objective": "Avoid claiming that every AI-generated recording can be detected.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M3-12",
+      "module": "MODULE 3: SYNTHETIC VOICE AND DEEPFAKE DETECTION",
+      "section": "Required objectives",
+      "objective": "Handle previously unseen synthetic speech where possible.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M4-01",
+      "module": "MODULE 4: SPEAKER VERIFICATION AND VOICE IMPERSONATION",
+      "section": "Required objectives",
+      "objective": "Support reference voice enrollment or reference voice upload.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M4-02",
+      "module": "MODULE 4: SPEAKER VERIFICATION AND VOICE IMPERSONATION",
+      "section": "Required objectives",
+      "objective": "Extract speaker embeddings.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M4-03",
+      "module": "MODULE 4: SPEAKER VERIFICATION AND VOICE IMPERSONATION",
+      "section": "Required objectives",
+      "objective": "Compare a recorded voice against a reference speaker.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M4-04",
+      "module": "MODULE 4: SPEAKER VERIFICATION AND VOICE IMPERSONATION",
+      "section": "Required objectives",
+      "objective": "Calculate speaker similarity.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M4-05",
+      "module": "MODULE 4: SPEAKER VERIFICATION AND VOICE IMPERSONATION",
+      "section": "Required objectives",
+      "objective": "Identify possible speaker mismatches.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M4-06",
+      "module": "MODULE 4: SPEAKER VERIFICATION AND VOICE IMPERSONATION",
+      "section": "Required objectives",
+      "objective": "Detect possible voice impersonation.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M4-07",
+      "module": "MODULE 4: SPEAKER VERIFICATION AND VOICE IMPERSONATION",
+      "section": "Required objectives",
+      "objective": "Distinguish speaker identity evidence from synthetic-speech detection.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M4-08",
+      "module": "MODULE 4: SPEAKER VERIFICATION AND VOICE IMPERSONATION",
+      "section": "Required objectives",
+      "objective": "Provide understandable speaker verification results.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M4-09",
+      "module": "MODULE 4: SPEAKER VERIFICATION AND VOICE IMPERSONATION",
+      "section": "Required objectives",
+      "objective": "Handle insufficient reference audio.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M4-10",
+      "module": "MODULE 4: SPEAKER VERIFICATION AND VOICE IMPERSONATION",
+      "section": "Required objectives",
+      "objective": "Handle multiple speakers where supported.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M4-11",
+      "module": "MODULE 4: SPEAKER VERIFICATION AND VOICE IMPERSONATION",
+      "section": "Required objectives",
+      "objective": "Handle voice variations caused by emotion, noise, compression, and recording conditions.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M4-12",
+      "module": "MODULE 4: SPEAKER VERIFICATION AND VOICE IMPERSONATION",
+      "section": "Required objectives",
+      "objective": "Avoid treating similarity scores as proof of identity.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M5-01",
+      "module": "MODULE 5: CONFIDENCE AND UNCERTAINTY ESTIMATION",
+      "section": "Required objectives",
+      "objective": "Generate confidence estimates for classification.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M5-02",
+      "module": "MODULE 5: CONFIDENCE AND UNCERTAINTY ESTIMATION",
+      "section": "Required objectives",
+      "objective": "Identify low-confidence predictions.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M5-03",
+      "module": "MODULE 5: CONFIDENCE AND UNCERTAINTY ESTIMATION",
+      "section": "Required objectives",
+      "objective": "Handle uncertain audio inputs.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M5-04",
+      "module": "MODULE 5: CONFIDENCE AND UNCERTAINTY ESTIMATION",
+      "section": "Required objectives",
+      "objective": "Detect incomplete audio.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M5-05",
+      "module": "MODULE 5: CONFIDENCE AND UNCERTAINTY ESTIMATION",
+      "section": "Required objectives",
+      "objective": "Handle out-of-distribution audio.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M5-06",
+      "module": "MODULE 5: CONFIDENCE AND UNCERTAINTY ESTIMATION",
+      "section": "Required objectives",
+      "objective": "Avoid forcing a genuine or synthetic decision when evidence is insufficient.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M5-07",
+      "module": "MODULE 5: CONFIDENCE AND UNCERTAINTY ESTIMATION",
+      "section": "Required objectives",
+      "objective": "Provide an inconclusive or needs-review result.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M5-08",
+      "module": "MODULE 5: CONFIDENCE AND UNCERTAINTY ESTIMATION",
+      "section": "Required objectives",
+      "objective": "Apply suitable decision thresholds.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M5-09",
+      "module": "MODULE 5: CONFIDENCE AND UNCERTAINTY ESTIMATION",
+      "section": "Required objectives",
+      "objective": "Identify conflicting evidence between synthetic detection and speaker verification.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M5-10",
+      "module": "MODULE 5: CONFIDENCE AND UNCERTAINTY ESTIMATION",
+      "section": "Required objectives",
+      "objective": "Ensure that confidence values are meaningful and not randomly generated.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M6-01",
+      "module": "MODULE 6: EXPLAINABLE AI (XAI)",
+      "section": "Required objectives",
+      "objective": "Explain why a recording was classified as suspicious.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M6-02",
+      "module": "MODULE 6: EXPLAINABLE AI (XAI)",
+      "section": "Required objectives",
+      "objective": "Display important audio characteristics influencing the result.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M6-03",
+      "module": "MODULE 6: EXPLAINABLE AI (XAI)",
+      "section": "Required objectives",
+      "objective": "Provide interpretable evidence for synthetic voice detection.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M6-04",
+      "module": "MODULE 6: EXPLAINABLE AI (XAI)",
+      "section": "Required objectives",
+      "objective": "Explain speaker similarity and possible mismatches.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M6-05",
+      "module": "MODULE 6: EXPLAINABLE AI (XAI)",
+      "section": "Required objectives",
+      "objective": "Highlight suspicious sections or timestamps where supported.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M6-06",
+      "module": "MODULE 6: EXPLAINABLE AI (XAI)",
+      "section": "Required objectives",
+      "objective": "Explain the system's risk assessment.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M6-07",
+      "module": "MODULE 6: EXPLAINABLE AI (XAI)",
+      "section": "Required objectives",
+      "objective": "Distinguish model confidence from actual certainty.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M6-08",
+      "module": "MODULE 6: EXPLAINABLE AI (XAI)",
+      "section": "Required objectives",
+      "objective": "Avoid presenting fabricated explanations.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M6-09",
+      "module": "MODULE 6: EXPLAINABLE AI (XAI)",
+      "section": "Required objectives",
+      "objective": "Make results understandable to non-technical users.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-01",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "A. Scam and fraud detection",
+      "objective": "Financial scams.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-02",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "A. Scam and fraud detection",
+      "objective": "Requests for urgent money transfers.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-03",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "A. Scam and fraud detection",
+      "objective": "Fake emergency calls.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-04",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "A. Scam and fraud detection",
+      "objective": "Requests for OTPs.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-05",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "A. Scam and fraud detection",
+      "objective": "Requests for bank details.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-06",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "A. Scam and fraud detection",
+      "objective": "Requests for passwords or confidential information.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-07",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "A. Scam and fraud detection",
+      "objective": "UPI and payment fraud attempts.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-08",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "A. Scam and fraud detection",
+      "objective": "Impersonation of relatives or family members.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-09",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "A. Scam and fraud detection",
+      "objective": "Fake police, government, or authority-related threats.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-10",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "A. Scam and fraud detection",
+      "objective": "Blackmail and extortion attempts.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-11",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "A. Scam and fraud detection",
+      "objective": "Social engineering.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-12",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "A. Scam and fraud detection",
+      "objective": "Suspicious requests involving money or personal information.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-13",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "B. Family safety and harmful conversation detection",
+      "objective": "Threatening conversations.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-14",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "B. Family safety and harmful conversation detection",
+      "objective": "Physical harm threats.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-15",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "B. Family safety and harmful conversation detection",
+      "objective": "Verbal intimidation.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-16",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "B. Family safety and harmful conversation detection",
+      "objective": "Coercion and manipulation.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-17",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "B. Family safety and harmful conversation detection",
+      "objective": "Emotional exploitation.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-18",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "B. Family safety and harmful conversation detection",
+      "objective": "Suspicious or potentially dangerous conversations.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-19",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "B. Family safety and harmful conversation detection",
+      "objective": "Requests to meet secretly for harmful purposes.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-20",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "B. Family safety and harmful conversation detection",
+      "objective": "Discussions involving potential exploitation.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-21",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "B. Family safety and harmful conversation detection",
+      "objective": "Attempts to pressure family members into sharing sensitive information.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-22",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "B. Family safety and harmful conversation detection",
+      "objective": "Other potentially harmful or unsafe interactions.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-23",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "C. Conversation analysis",
+      "objective": "Convert uploaded audio into text using actual speech-to-text functionality.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-24",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "C. Conversation analysis",
+      "objective": "Analyze the conversation context.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-25",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "C. Conversation analysis",
+      "objective": "Identify suspicious statements and phrases.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-26",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "C. Conversation analysis",
+      "objective": "Understand context instead of relying exclusively on individual keywords.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-27",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "C. Conversation analysis",
+      "objective": "Identify the type of potential scam or threat.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-28",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "C. Conversation analysis",
+      "objective": "Identify relevant timestamps where possible.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-29",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "C. Conversation analysis",
+      "objective": "Provide evidence from the conversation.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-30",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "C. Conversation analysis",
+      "objective": "Explain why a conversation has been flagged.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-31",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "C. Conversation analysis",
+      "objective": "Distinguish harmless conversations from suspicious ones.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-32",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "C. Conversation analysis",
+      "objective": "Handle multilingual conversations where supported.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-33",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "C. Conversation analysis",
+      "objective": "Handle incomplete or unclear speech.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-34",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "C. Conversation analysis",
+      "objective": "Avoid automatically treating every financial discussion or argument as fraud.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-35",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "E. Family safety reports",
+      "objective": "Scam category.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-36",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "E. Family safety reports",
+      "objective": "Risk level.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-37",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "E. Family safety reports",
+      "objective": "Detected suspicious statements.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-38",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "E. Family safety reports",
+      "objective": "Conversation transcript.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-39",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "E. Family safety reports",
+      "objective": "Relevant timestamps.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-40",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "E. Family safety reports",
+      "objective": "Explanation of the identified risk.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-41",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "E. Family safety reports",
+      "objective": "Suggested safety precautions.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-42",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "E. Family safety reports",
+      "objective": "Human review recommendations.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-43",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "E. Family safety reports",
+      "objective": "Clear indication of uncertainty.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M7-44",
+      "module": "MODULE 7: FAMILY SCAM DETECTION \u2013 ADDITIONAL FEATURE",
+      "section": "E. Family safety reports",
+      "objective": "A readable final family safety report.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M8-01",
+      "module": "MODULE 8: INTEGRATED RISK-AWARE VERIFICATION ENGINE",
+      "section": "",
+      "objective": "Synthetic voice detection results.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M8-02",
+      "module": "MODULE 8: INTEGRATED RISK-AWARE VERIFICATION ENGINE",
+      "section": "",
+      "objective": "Speaker verification results.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M8-03",
+      "module": "MODULE 8: INTEGRATED RISK-AWARE VERIFICATION ENGINE",
+      "section": "",
+      "objective": "Voice similarity evidence.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M8-04",
+      "module": "MODULE 8: INTEGRATED RISK-AWARE VERIFICATION ENGINE",
+      "section": "",
+      "objective": "Confidence and uncertainty estimates.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M8-05",
+      "module": "MODULE 8: INTEGRATED RISK-AWARE VERIFICATION ENGINE",
+      "section": "",
+      "objective": "Family scam detection results.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M8-06",
+      "module": "MODULE 8: INTEGRATED RISK-AWARE VERIFICATION ENGINE",
+      "section": "",
+      "objective": "Threat and harmful conversation indicators.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M8-07",
+      "module": "MODULE 8: INTEGRATED RISK-AWARE VERIFICATION ENGINE",
+      "section": "",
+      "objective": "Audio quality and recording reliability.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M9-01",
+      "module": "MODULE 9: RISK SCORING AND DECISION ENGINE",
+      "section": "",
+      "objective": "Whether the application has a proper risk scoring mechanism.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M9-02",
+      "module": "MODULE 9: RISK SCORING AND DECISION ENGINE",
+      "section": "",
+      "objective": "Whether risk scores are generated from actual detection evidence.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M9-03",
+      "module": "MODULE 9: RISK SCORING AND DECISION ENGINE",
+      "section": "",
+      "objective": "Whether thresholds are defined and applied consistently.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M9-04",
+      "module": "MODULE 9: RISK SCORING AND DECISION ENGINE",
+      "section": "",
+      "objective": "Whether high-risk cases are highlighted.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M9-05",
+      "module": "MODULE 9: RISK SCORING AND DECISION ENGINE",
+      "section": "",
+      "objective": "Whether critical cases receive appropriate warnings.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M9-06",
+      "module": "MODULE 9: RISK SCORING AND DECISION ENGINE",
+      "section": "",
+      "objective": "Whether uncertainty reduces the strength of conclusions.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M9-07",
+      "module": "MODULE 9: RISK SCORING AND DECISION ENGINE",
+      "section": "",
+      "objective": "Whether conflicting detection results are handled properly.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M9-08",
+      "module": "MODULE 9: RISK SCORING AND DECISION ENGINE",
+      "section": "",
+      "objective": "Whether risk explanations are provided.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M9-09",
+      "module": "MODULE 9: RISK SCORING AND DECISION ENGINE",
+      "section": "",
+      "objective": "Whether false alarms are considered.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M9-10",
+      "module": "MODULE 9: RISK SCORING AND DECISION ENGINE",
+      "section": "",
+      "objective": "Whether the system avoids presenting risk scores as guaranteed probabilities.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M10-01",
+      "module": "MODULE 10: DATASET AND MODEL TRAINING",
+      "section": "Required objectives",
+      "objective": "Use representative genuine speech samples.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M10-02",
+      "module": "MODULE 10: DATASET AND MODEL TRAINING",
+      "section": "Required objectives",
+      "objective": "Use representative synthetic speech samples.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M10-03",
+      "module": "MODULE 10: DATASET AND MODEL TRAINING",
+      "section": "Required objectives",
+      "objective": "Include different speakers and voice characteristics.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M10-04",
+      "module": "MODULE 10: DATASET AND MODEL TRAINING",
+      "section": "Required objectives",
+      "objective": "Include different recording environments.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M10-05",
+      "module": "MODULE 10: DATASET AND MODEL TRAINING",
+      "section": "Required objectives",
+      "objective": "Include compressed audio.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M10-06",
+      "module": "MODULE 10: DATASET AND MODEL TRAINING",
+      "section": "Required objectives",
+      "objective": "Include noisy audio.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M10-07",
+      "module": "MODULE 10: DATASET AND MODEL TRAINING",
+      "section": "Required objectives",
+      "objective": "Include different recording devices and quality levels.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M10-08",
+      "module": "MODULE 10: DATASET AND MODEL TRAINING",
+      "section": "Required objectives",
+      "objective": "Use appropriate training, validation, and testing datasets.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M10-09",
+      "module": "MODULE 10: DATASET AND MODEL TRAINING",
+      "section": "Required objectives",
+      "objective": "Prevent data leakage between training and testing.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M10-10",
+      "module": "MODULE 10: DATASET AND MODEL TRAINING",
+      "section": "Required objectives",
+      "objective": "Document dataset sources and limitations.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M10-11",
+      "module": "MODULE 10: DATASET AND MODEL TRAINING",
+      "section": "Required objectives",
+      "objective": "Use reproducible preprocessing.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M10-12",
+      "module": "MODULE 10: DATASET AND MODEL TRAINING",
+      "section": "Required objectives",
+      "objective": "Verify that models are actually trained or appropriately loaded.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M10-13",
+      "module": "MODULE 10: DATASET AND MODEL TRAINING",
+      "section": "Required objectives",
+      "objective": "Compare suitable supervised deep-learning models.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M10-14",
+      "module": "MODULE 10: DATASET AND MODEL TRAINING",
+      "section": "Required objectives",
+      "objective": "Establish baseline performance.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M10-15",
+      "module": "MODULE 10: DATASET AND MODEL TRAINING",
+      "section": "Required objectives",
+      "objective": "Document model versions and training configurations.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M11-01",
+      "module": "MODULE 11: PERFORMANCE EVALUATION",
+      "section": "",
+      "objective": "Accuracy.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M11-02",
+      "module": "MODULE 11: PERFORMANCE EVALUATION",
+      "section": "",
+      "objective": "Precision.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M11-03",
+      "module": "MODULE 11: PERFORMANCE EVALUATION",
+      "section": "",
+      "objective": "Recall.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M11-04",
+      "module": "MODULE 11: PERFORMANCE EVALUATION",
+      "section": "",
+      "objective": "F1-score.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M11-05",
+      "module": "MODULE 11: PERFORMANCE EVALUATION",
+      "section": "",
+      "objective": "Confusion matrix.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M11-06",
+      "module": "MODULE 11: PERFORMANCE EVALUATION",
+      "section": "",
+      "objective": "False Acceptance Rate (FAR).",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M11-07",
+      "module": "MODULE 11: PERFORMANCE EVALUATION",
+      "section": "",
+      "objective": "False Rejection Rate (FRR).",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M11-08",
+      "module": "MODULE 11: PERFORMANCE EVALUATION",
+      "section": "",
+      "objective": "False Positive Rate (FPR).",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M11-09",
+      "module": "MODULE 11: PERFORMANCE EVALUATION",
+      "section": "",
+      "objective": "False Negative Rate (FNR).",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M11-10",
+      "module": "MODULE 11: PERFORMANCE EVALUATION",
+      "section": "",
+      "objective": "Equal Error Rate (EER), where appropriate.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M11-11",
+      "module": "MODULE 11: PERFORMANCE EVALUATION",
+      "section": "",
+      "objective": "Speaker verification performance.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M11-12",
+      "module": "MODULE 11: PERFORMANCE EVALUATION",
+      "section": "",
+      "objective": "Synthetic voice detection performance.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M11-13",
+      "module": "MODULE 11: PERFORMANCE EVALUATION",
+      "section": "",
+      "objective": "Inference latency.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M11-14",
+      "module": "MODULE 11: PERFORMANCE EVALUATION",
+      "section": "",
+      "objective": "Performance under noise and compression.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M11-15",
+      "module": "MODULE 11: PERFORMANCE EVALUATION",
+      "section": "",
+      "objective": "Performance on unseen or out-of-distribution samples.",
+      "status": "UNVERIFIABLE",
+      "note": "Required speech corpus unavailable; stored reports are not fresh verification."
+    },
+    {
+      "id": "M12-01",
+      "module": "MODULE 12: HUMAN VERIFICATION AND RESPONSIBLE AI",
+      "section": "Required objectives",
+      "objective": "Support secondary human verification.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M12-02",
+      "module": "MODULE 12: HUMAN VERIFICATION AND RESPONSIBLE AI",
+      "section": "Required objectives",
+      "objective": "Clearly flag uncertain decisions.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M12-03",
+      "module": "MODULE 12: HUMAN VERIFICATION AND RESPONSIBLE AI",
+      "section": "Required objectives",
+      "objective": "Provide evidence before making high-risk claims.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M12-04",
+      "module": "MODULE 12: HUMAN VERIFICATION AND RESPONSIBLE AI",
+      "section": "Required objectives",
+      "objective": "Avoid automatically accusing individuals of fraud.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M12-05",
+      "module": "MODULE 12: HUMAN VERIFICATION AND RESPONSIBLE AI",
+      "section": "Required objectives",
+      "objective": "Avoid treating model predictions as absolute proof.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M12-06",
+      "module": "MODULE 12: HUMAN VERIFICATION AND RESPONSIBLE AI",
+      "section": "Required objectives",
+      "objective": "Provide suitable safety recommendations.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M12-07",
+      "module": "MODULE 12: HUMAN VERIFICATION AND RESPONSIBLE AI",
+      "section": "Required objectives",
+      "objective": "Handle sensitive audio responsibly.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M12-08",
+      "module": "MODULE 12: HUMAN VERIFICATION AND RESPONSIBLE AI",
+      "section": "Required objectives",
+      "objective": "Protect uploaded recordings and transcripts.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M12-09",
+      "module": "MODULE 12: HUMAN VERIFICATION AND RESPONSIBLE AI",
+      "section": "Required objectives",
+      "objective": "Avoid unnecessary exposure of personal information.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M12-10",
+      "module": "MODULE 12: HUMAN VERIFICATION AND RESPONSIBLE AI",
+      "section": "Required objectives",
+      "objective": "Provide appropriate user consent and privacy controls.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M12-11",
+      "module": "MODULE 12: HUMAN VERIFICATION AND RESPONSIBLE AI",
+      "section": "Required objectives",
+      "objective": "Support safe handling of critical threats.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M12-12",
+      "module": "MODULE 12: HUMAN VERIFICATION AND RESPONSIBLE AI",
+      "section": "Required objectives",
+      "objective": "Preserve human oversight in important decisions.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-01",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Dashboard loads correctly.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-02",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Audio upload works.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-03",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Analysis starts successfully.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-04",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Processing status updates correctly.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-05",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Results are displayed correctly.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-06",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Synthetic voice detection results are understandable.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-07",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Speaker verification results are understandable.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-08",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Family scam detection results are displayed.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-09",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Risk scores and warning indicators are visible.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-10",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Reports are generated correctly.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-11",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Previous analysis history works.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-12",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Search and filters work where available.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-13",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Navigation works across all pages.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-14",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Forms validate their inputs.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-15",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Buttons trigger the correct actions.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-16",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Loading states work correctly.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-17",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Error messages are meaningful.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-18",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Empty states are handled.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-19",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "Responsive design works on mobile, tablet, and desktop.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M13-20",
+      "module": "MODULE 13: DASHBOARD AND USER INTERFACE",
+      "section": "",
+      "objective": "No broken links, blank pages, or console errors.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M14-01",
+      "module": "MODULE 14: BACKEND, API AND DATABASE",
+      "section": "",
+      "objective": "Backend functions are connected.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M14-02",
+      "module": "MODULE 14: BACKEND, API AND DATABASE",
+      "section": "",
+      "objective": "API requests work correctly.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M14-03",
+      "module": "MODULE 14: BACKEND, API AND DATABASE",
+      "section": "",
+      "objective": "Model inference APIs return valid results.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M14-04",
+      "module": "MODULE 14: BACKEND, API AND DATABASE",
+      "section": "",
+      "objective": "Audio files are processed by the backend.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M14-05",
+      "module": "MODULE 14: BACKEND, API AND DATABASE",
+      "section": "",
+      "objective": "Database records are saved correctly.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M14-06",
+      "module": "MODULE 14: BACKEND, API AND DATABASE",
+      "section": "",
+      "objective": "Analysis history is stored correctly.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M14-07",
+      "module": "MODULE 14: BACKEND, API AND DATABASE",
+      "section": "",
+      "objective": "Data is retrieved correctly.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M14-08",
+      "module": "MODULE 14: BACKEND, API AND DATABASE",
+      "section": "",
+      "objective": "Authentication and authorization work.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M14-09",
+      "module": "MODULE 14: BACKEND, API AND DATABASE",
+      "section": "",
+      "objective": "Invalid requests are handled.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M14-10",
+      "module": "MODULE 14: BACKEND, API AND DATABASE",
+      "section": "",
+      "objective": "API failures do not crash the application.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M14-11",
+      "module": "MODULE 14: BACKEND, API AND DATABASE",
+      "section": "",
+      "objective": "Sensitive information is protected.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M14-12",
+      "module": "MODULE 14: BACKEND, API AND DATABASE",
+      "section": "",
+      "objective": "API keys and secrets are not exposed in frontend code.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M14-13",
+      "module": "MODULE 14: BACKEND, API AND DATABASE",
+      "section": "",
+      "objective": "Database access permissions are correct.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M14-14",
+      "module": "MODULE 14: BACKEND, API AND DATABASE",
+      "section": "",
+      "objective": "Duplicate submissions are handled appropriately.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    },
+    {
+      "id": "M14-15",
+      "module": "MODULE 14: BACKEND, API AND DATABASE",
+      "section": "",
+      "objective": "Backend responses match the frontend results.",
+      "status": "PARTIALLY COMPLETED",
+      "note": "Software implementation/tests cover portions of this objective, but full real-audio and production acceptance was not performed. See REPAIR_VERIFICATION.md."
+    }
+  ],
+  "status_counts": {
+    "PARTIALLY COMPLETED": 176,
+    "UNVERIFIABLE": 30
+  }
+}

@@ -13,7 +13,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary:
-    'bg-gradient-to-r from-accent-bright via-magenta to-coral text-white font-semibold hover:brightness-105 active:brightness-95',
+    'bg-accent text-white font-semibold hover:bg-accent-bright active:brightness-95',
   secondary:
     'bg-surface-2 text-ink border border-line hover:border-accent/40 hover:text-accent',
   ghost: 'text-ink-dim hover:text-ink hover:bg-surface-2',
@@ -22,7 +22,7 @@ const buttonVariants: Record<ButtonVariant, string> = {
 export function Button({ variant = 'primary', className = '', ...props }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm
+      className={`action-button inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm
         transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0
         ${buttonVariants[variant]} ${className}`}
       {...props}
@@ -37,7 +37,7 @@ export function LinkButton({
 }: AnchorHTMLAttributes<HTMLAnchorElement> & { variant?: ButtonVariant }) {
   return (
     <a
-      className={`inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm
+      className={`action-button inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm
         transition-colors duration-150 ${buttonVariants[variant]} ${className}`}
       {...props}
     />
@@ -61,7 +61,7 @@ export function Card({
 }) {
   return (
     <section
-      className={`rounded-lg border border-line bg-surface shadow-card transition-all duration-200 hover:shadow-lg ${className}`}
+      className={`app-panel rounded-lg border border-line bg-surface shadow-card transition-colors duration-200 ${className}`}
     >
       {(title || actions) && (
         <header className="flex items-start justify-between gap-4 border-b border-line/70 px-5 py-4">
@@ -154,7 +154,7 @@ export function StatTile({
     neutral: 'text-ink',
   }
   return (
-    <div className="rounded-lg border border-line bg-surface px-5 py-4">
+    <div className="app-stat rounded-lg border border-line bg-surface px-5 py-4">
       <p className="text-xs font-medium uppercase tracking-wider text-ink-dim">{label}</p>
       <p className={`mt-2 font-mono text-2xl font-semibold tabular-nums ${valueColors[tone]}`}>
         {value}
@@ -270,7 +270,7 @@ export function PageHeader({
   actions?: ReactNode
 }) {
   return (
-    <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <header className="app-page-header mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-ink">{title}</h1>
         {subtitle && <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-ink-dim">{subtitle}</p>}

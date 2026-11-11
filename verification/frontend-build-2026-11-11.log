@@ -1,0 +1,13 @@
+
+> voxsentinel-frontend@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 477 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.62 kB │ gzip:   0.37 kB
+dist/assets/index-BPquTWvz.css   42.26 kB │ gzip:   9.66 kB
+dist/assets/index-DMHrNN3w.js   414.61 kB │ gzip: 132.64 kB
+✓ built in 5.14s

@@ -1,0 +1,15 @@
+# Vercel Python function deps (slim: no torch / whisper / ffmpeg stack).
+# Full stack for a container host: backend/requirements.txt
+fastapi==0.159.1
+uvicorn[standard]==0.54.0
+pydantic==2.12.0
+SQLAlchemy==2.1.6
+python-multipart==0.0.32
+numpy==2.4.6
+scikit-learn==1.9.1
+joblib==1.6.0
+httpx==0.28.1
+soundfile==0.14.0  # bundled libsndfile: MP3/FLAC/OGG decode without system packages
+
+# Match librosa soxr_hq resampling in the slim runtime.
+soxr==1.1.0

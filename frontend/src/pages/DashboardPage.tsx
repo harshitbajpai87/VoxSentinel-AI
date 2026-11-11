@@ -57,7 +57,7 @@ export default function DashboardPage() {
     <div className="animate-fade-in">
       <PageHeader
         title="Overview"
-        subtitle="Live picture of the VoxSentinel analysis pipeline. Every number below comes from the backend API; nothing is simulated."
+        subtitle="System telemetry and analysis logs."
         actions={
           <LinkButton href="/analyze">
             <PlusIcon width={15} height={15} /> Analyze audio
@@ -106,12 +106,11 @@ export default function DashboardPage() {
         <div className="space-y-6 lg:col-span-2">
           <Card
             title="Recent analyses"
-            subtitle="Newest first, straight from the history store."
-            actions={<Tag>Live data</Tag>}
+            subtitle="Chronological history of processed audio clips."
           >
             {offline && (
               <ErrorState
-                description="Start the Python backend (Phase 4) or point Settings → API URL at a running instance."
+                description="Start the Python backend, then re-check the connection."
                 onRetry={() => void refresh()}
               />
             )}
@@ -129,7 +128,7 @@ export default function DashboardPage() {
               <EmptyState
                 icon={<WaveformIcon width={26} height={26} />}
                 title="No analyses yet"
-                description="This is the honest first-run state. Once the backend is running and you analyze your first audio clip, results will appear here."
+                description="Analyze an audio clip to start a history of recordings and their reported risk signals."
                 action={
                   <LinkButton href="/analyze">
                     <PlusIcon width={15} height={15} /> Analyze your first clip
@@ -171,11 +170,11 @@ export default function DashboardPage() {
           <Card
             title="Risk distribution"
             subtitle="A chart appears here once real analyses exist."
-            actions={<Tag>Chart: Phase 7</Tag>}
+            actions={<Tag>Recorded analyses</Tag>}
           >
             <Waveform active={false} className="justify-center opacity-30" />
             <p className="mt-3 text-center text-xs text-ink-faint">
-              Deliberately not a fake chart. Populated from recorded analyses only.
+              No chart is available yet. Review individual results in Analysis History.
             </p>
           </Card>
         </div>
@@ -225,10 +224,10 @@ export default function DashboardPage() {
             </ul>
           </Card>
 
-          <Card title="Recent audit events" actions={<Tag>Phase 8</Tag>}>
+          <Card title="Recent audit events">
             <EmptyState
               title="Audit log not connected yet"
-              description="Uploads, analyses, exports and review decisions will be recorded here once the backend audit store exists (Phase 8)."
+              description="Audit events are recorded by the backend but are not listed in this overview."
             />
           </Card>
         </div>

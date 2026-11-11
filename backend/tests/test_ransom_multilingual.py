@@ -47,7 +47,9 @@ def test_evidence_quotes_are_verbatim_slices():
     r = analyze_transcript(text)
     assert r.evidence_quotes, "every scam classification must cite transcript evidence"
     for quote in r.evidence_quotes:
-        assert quote in text.lower(), "quote must appear verbatim in the transcript"
+        # Quotes keep the caller's original casing; matching runs on a
+        # lowercased copy, the evidence shown to users must not.
+        assert quote in text, "quote must appear verbatim in the transcript"
 
 
 def test_benign_conversation_has_no_evidence_quotes():

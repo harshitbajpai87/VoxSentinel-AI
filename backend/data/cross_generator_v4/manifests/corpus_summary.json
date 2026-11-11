@@ -1,0 +1,128 @@
+{
+  "train": {
+    "n": 960,
+    "real": 840,
+    "synthetic": 120,
+    "speakers_real": [
+      "librispeech:174",
+      "librispeech:1919",
+      "librispeech:2086",
+      "librispeech:2277",
+      "librispeech:2412",
+      "librispeech:2428",
+      "librispeech:251",
+      "librispeech:3000",
+      "librispeech:3170",
+      "librispeech:3536",
+      "librispeech:3576",
+      "librispeech:3752",
+      "librispeech:3853",
+      "librispeech:422",
+      "librispeech:5338",
+      "librispeech:5536",
+      "librispeech:5694",
+      "librispeech:6241",
+      "librispeech:6295",
+      "librispeech:6313",
+      "librispeech:6319",
+      "librispeech:6345",
+      "librispeech:652",
+      "librispeech:777",
+      "librispeech:7850",
+      "librispeech:7976",
+      "librispeech:8297",
+      "librispeech:8842"
+    ],
+    "voices_synthetic": [
+      "edge-tts:en-GB-RyanNeural",
+      "edge-tts:en-GB-SoniaNeural",
+      "edge-tts:en-IN-NeerjaNeural",
+      "edge-tts:en-US-AriaNeural",
+      "edge-tts:en-US-GuyNeural",
+      "edge-tts:en-US-JennyNeural"
+    ],
+    "conditions": {
+      "clean": 254,
+      "narrowband8k": 254,
+      "mp3_64k": 226,
+      "noisy_15db": 226
+    },
+    "by_condition_label": {
+      "clean/real": 224,
+      "clean/synthetic": 30,
+      "narrowband8k/real": 224,
+      "narrowband8k/synthetic": 30,
+      "mp3_64k/real": 196,
+      "mp3_64k/synthetic": 30,
+      "noisy_15db/real": 196,
+      "noisy_15db/synthetic": 30
+    }
+  },
+  "validation": {
+    "n": 174,
+    "real": 150,
+    "synthetic": 24,
+    "speakers_real": [
+      "librispeech:1272",
+      "librispeech:1673",
+      "librispeech:1988",
+      "librispeech:5895",
+      "librispeech:84"
+    ],
+    "voices_synthetic": [
+      "edge-tts:en-GB-ThomasNeural",
+      "edge-tts:en-US-EmmaNeural"
+    ],
+    "conditions": {
+      "clean": 46,
+      "narrowband8k": 46,
+      "mp3_64k": 41,
+      "noisy_15db": 41
+    },
+    "by_condition_label": {
+      "clean/real": 40,
+      "clean/synthetic": 6,
+      "narrowband8k/real": 40,
+      "narrowband8k/synthetic": 6,
+      "mp3_64k/real": 35,
+      "mp3_64k/synthetic": 6,
+      "noisy_15db/real": 35,
+      "noisy_15db/synthetic": 6
+    }
+  },
+  "eval": {
+    "n": 210,
+    "real": 150,
+    "synthetic": 60,
+    "speakers_real": [
+      "librispeech:1993",
+      "librispeech:2078",
+      "librispeech:2803",
+      "librispeech:2902",
+      "librispeech:3081"
+    ],
+    "voices_synthetic": [
+      "edge-tts:en-AU-NatashaNeural",
+      "edge-tts:en-IN-PrabhatNeural",
+      "edge-tts:en-US-AvaNeural",
+      "edge-tts:hi-IN-MadhurNeural",
+      "edge-tts:hi-IN-SwaraNeural"
+    ],
+    "conditions": {
+      "clean": 55,
+      "narrowband8k": 55,
+      "mp3_64k": 50,
+      "noisy_15db": 50
+    },
+    "by_condition_label": {
+      "clean/real": 40,
+      "clean/synthetic": 15,
+      "narrowband8k/real": 40,
+      "narrowband8k/synthetic": 15,
+      "mp3_64k/real": 35,
+      "mp3_64k/synthetic": 15,
+      "noisy_15db/real": 35,
+      "noisy_15db/synthetic": 15
+    }
+  }
+}

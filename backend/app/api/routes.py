@@ -50,8 +50,6 @@ from app.schemas.synthesis import (
 from app.services.audio_validation import (
     AudioValidationError,
     DecodedAudio,
-    strip_untrusted_path,
-    validate_and_decode,
 )
 from app.services.audit import list_events, log_event
 from app.services.detector import DetectorInferenceError, DetectorResult, ModelNotReadyError
@@ -68,8 +66,17 @@ from app.services.gnani_client import (
     TTSRequest,
 )
 from app.services.history import AnalysisRepository, utc_now_iso
+from app.services.ingestion import (
+    audio_capabilities,
+    describe_environment,
+    effective_upload_limit,
+    ingest_audio,
+    probe_decoders,
+)
+from app.services.model_loader import artifact_status
 from app.services.retention import last_cleanup_info, run_cleanup
 from app.services.risk_engine import STANDARD_LIMITATIONS
+from app.services.speaker import speaker_backend_name
 from app.services.voicechat_client import (
     VoiceChatConnectionError,
     VoiceChatProtocolError,
@@ -95,45 +102,21 @@ def get_db(request: Request) -> Iterator[Session]:
 
 
 def size_limit_message(settings) -> str:
-    return f"The uploaded file exceeds the {settings.max_upload_bytes // (1024 * 1024)} MB limit."
+    """Kept for callers/tests; now states the deployment's real ceiling."""
+    from app.services.ingestion import limit_message
+
+    return limit_message(settings)
 
 
 def _raise_validation_error(exc: AudioValidationError) -> None:
     raise HTTPException(status_code=exc.status_code, detail={"code": exc.code, "message": exc.message})
 
 
-async def _read_upload(file: UploadFile, request: Request) -> bytes:
-    """Read an upload with a hard size ceiling, refusing oversized bodies."""
-    settings = request.app.state.settings
-    if file.size is not None and file.size > settings.max_upload_bytes:
-        raise HTTPException(
-            status_code=413,
-            detail={
-                "code": "file_too_large",
-                "message": size_limit_message(settings),
-            },
-        )
-    data = await file.read(settings.max_upload_bytes + 1)
-    if len(data) > settings.max_upload_bytes:
-        raise HTTPException(
-            status_code=413,
-            detail={
-                "code": "file_too_large",
-                "message": size_limit_message(settings),
-            },
-        )
-    return data
-
-
-async def _validated_audio(file: UploadFile, request: Request) -> tuple[DecodedAudio, str]:
-    settings = request.app.state.settings
-    display_name = strip_untrusted_path(file.filename)
-    data = await _read_upload(file, request)
-    try:
-        decoded = validate_and_decode(data, display_name, settings)
-    except AudioValidationError as exc:
-        _raise_validation_error(exc)
-        raise  # unreachable; keeps type checkers happy
+async def _validated_audio(
+    file: UploadFile, request: Request, label: str = "audio"
+) -> tuple[DecodedAudio, str]:
+    """Delegate to the ONE shared ingestion layer every audio route uses."""
+    decoded, display_name, _size = await ingest_audio(file, request.app.state.settings, label)
     return decoded, display_name
 
 
@@ -157,6 +140,20 @@ def _evidence(decoded: DecodedAudio, result: DetectorResult | None = None) -> An
     )
 
 
+def _contextual_ready(contextual: dict) -> bool:
+    """True only when the reasoning chain has a member that can actually answer.
+
+    A configured router with a stopped Ollama daemon and no hosted fallback key
+    used to report ready; it could not answer a single request.
+    """
+    if not contextual.get("configured"):
+        return False
+    chain = contextual.get("resolved_chain") or []
+    if not chain:
+        return True
+    return any(member.get("reachable", member.get("configured")) for member in chain)
+
+
 @health_router.get("/health", response_model=HealthResponse)
 def health(request: Request) -> HealthResponse:
     """Readiness of the API, database and each model, reported separately.
@@ -166,6 +163,28 @@ def health(request: Request) -> HealthResponse:
     """
     settings = request.app.state.settings
     db_ok = request.app.state.db.ping()
+    decoders = probe_decoders(settings)
+    protection = request.app.state.protection_service.describe()
+    transcription = protection.get("transcription") or {}
+    contextual = protection.get("contextual_ai") or {}
+    # Optional external services are REPORTED, never required: an unavailable
+    # provider must not make the API look offline.
+    services = {
+        "detector": request.app.state.detector_service.is_ready(),
+        "speaker_verifier": request.app.state.speaker_service.is_ready(),
+        "transcription": bool(transcription.get("available")),
+        "contextual_ai": _contextual_ready(contextual),
+        "speech_generation": bool(getattr(request.app.state.gnani_service, "enabled", False)),
+        "voicechat": bool(getattr(request.app.state.voicechat_service, "enabled", False)),
+        # Which speaker backend actually runs here: 'ecapa', 'mfcc_statistics'
+        # or 'none'. `speaker_model_ready` alone cannot tell you that.
+        "speaker_verifier_backend": speaker_backend_name(
+            request.app.state.speaker_service
+        ),
+        # Why the detector artifact did or did not load, verbatim, including a
+        # missing module name when the pickle needs a dependency this host lacks.
+        "detector_artifact": artifact_status(),
+    }
     return HealthResponse(
         status="ok" if db_ok else "degraded",
         backend_ready=db_ok,
@@ -173,6 +192,12 @@ def health(request: Request) -> HealthResponse:
         speaker_model_ready=request.app.state.speaker_service.is_ready(),
         version=settings.api_version,
         mode=settings.app_mode,
+        audio_decoder_ready=bool(decoders.ffmpeg and decoders.ffprobe),
+        max_upload_bytes=settings.max_upload_bytes,
+        effective_max_upload_bytes=effective_upload_limit(settings),
+        audio=audio_capabilities(settings),
+        services=services,
+        environment=describe_environment(),
     )
 
 
@@ -213,7 +238,7 @@ async def analyze_audio(
         )
 
     try:
-        decoded, display_name = await _validated_audio(file, request)
+        decoded, display_name = await _validated_audio(file, request, "audio")
     except HTTPException as exc:
         code = str(((exc.detail or {}).get("code")) if isinstance(exc.detail, dict) else "invalid")
         log_event(db, "analysis", "request", "failed",
@@ -336,10 +361,15 @@ async def speaker_verify(
             },
         )
 
-    reference_audio, _ = await _validated_audio(reference, request)
-    test_audio, _ = await _validated_audio(test, request)
+    # Each file is validated and size-checked INDEPENDENTLY, so an oversized
+    # reference is named as such instead of a generic "request too large".
+    reference_audio, reference_name = await _validated_audio(reference, request, "reference")
+    test_audio, test_name = await _validated_audio(test, request, "test")
 
     service = request.app.state.speaker_service
+    # A missing/broken embedding model yields the documented explicit
+    # `unavailable` result (HTTP 200, similarity null) instead of an opaque 500;
+    # the service owns that decision so no route can accidentally fabricate one.
     result = service.compare(
         reference_audio.samples,
         reference_audio.sample_rate,
@@ -350,7 +380,13 @@ async def speaker_verify(
               request_id=getattr(request.state, "request_id", None),
               metadata={"similarity": result.similarity, "outcome": result.outcome,
                         "embedding_model": result.embedding_model})
-    warnings = list(reference_audio.warnings) + list(test_audio.warnings)
+    # Include the verifier's own warnings: they carry "no voiced region detected"
+    # and the uncalibrated-threshold notice, which were previously dropped.
+    warnings = (
+        list(reference_audio.warnings)
+        + list(test_audio.warnings)
+        + list(result.warnings)
+    )
     return SpeakerVerifyResponse(
         status=result.status,
         similarity=result.similarity,

@@ -8,17 +8,13 @@ import App from '../src/App'
 import { ApiStatusProvider } from '../src/lib/apiStatus'
 
 const ROUTES: [string, string][] = [
-  ['/', 'Voice Authenticity. Trusted.'],
+  ['/', 'Synthetic Audio Detection'],
   ['/protection', 'Family Emergency &amp; Scam Protection'],
   ['/dashboard', 'Overview'],
   ['/analyze', 'Analyze Audio'],
   ['/verify', 'Speaker Verification'],
   ['/history', 'Analysis History'],
-  ['/evaluation', 'Model Evaluation'],
-  ['/explainability', 'Explainability'],
-  ['/security', 'Security'],
-  ['/docs', 'Documentation'],
-  ['/settings', 'Settings &amp; Privacy'],
+  ['/record', 'Live Recording'],
 ]
 
 let failures = 0
@@ -46,4 +42,4 @@ if (failures > 0) {
   console.error(`${failures} route(s) failed`)
   process.exit(1)
 }
-console.log('All 10 routes rendered without errors.')
+console.log(`All ${ROUTES.length} routes rendered without errors.`)

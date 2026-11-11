@@ -1,0 +1,351 @@
+{
+  "schema_version": 1,
+  "ready": false,
+  "dataset_dir": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4",
+  "manifests": [
+    "data\\cross_generator_v4\\manifests\\all_hi.jsonl"
+  ],
+  "total_rows": 1762,
+  "valid_rows": 1762,
+  "existing_audio_rows": 0,
+  "unique_files_hashed": 0,
+  "bytes_hashed": 0,
+  "counts": {
+    "train": {
+      "total": 1218,
+      "classes": {
+        "real": 1098,
+        "synthetic": 120
+      },
+      "languages": {
+        "en": 960,
+        "hi": 258
+      },
+      "class_languages": {
+        "real": {
+          "en": 840,
+          "hi": 258
+        },
+        "synthetic": {
+          "en": 120
+        }
+      }
+    },
+    "validation": {
+      "total": 214,
+      "classes": {
+        "real": 190,
+        "synthetic": 24
+      },
+      "languages": {
+        "en": 174,
+        "hi": 40
+      },
+      "class_languages": {
+        "real": {
+          "en": 150,
+          "hi": 40
+        },
+        "synthetic": {
+          "en": 24
+        }
+      }
+    },
+    "eval": {
+      "total": 330,
+      "classes": {
+        "real": 270,
+        "synthetic": 60
+      },
+      "languages": {
+        "en": 186,
+        "hi": 144
+      },
+      "class_languages": {
+        "real": {
+          "en": 150,
+          "hi": 120
+        },
+        "synthetic": {
+          "en": 36,
+          "hi": 24
+        }
+      }
+    },
+    "holdout": {
+      "total": 0,
+      "classes": {
+        "real": 0,
+        "synthetic": 0
+      },
+      "languages": {},
+      "class_languages": {
+        "real": {},
+        "synthetic": {}
+      }
+    }
+  },
+  "error_counts": {
+    "missing_audio": 1344,
+    "unsafe_path": 418
+  },
+  "error_examples": {
+    "missing_audio": [
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 1,
+        "path": "real_clean/2086/2086-149220-0031.flac",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_clean\\2086\\2086-149220-0031.flac"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 2,
+        "path": "real_8k/2086/2086-149214-0001.wav",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_8k\\2086\\2086-149214-0001.wav"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 3,
+        "path": "real_mp3/2086/2086-149220-0041.mp3",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_mp3\\2086\\2086-149220-0041.mp3"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 4,
+        "path": "real_noisy/2086/2086-149214-0002.wav",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_noisy\\2086\\2086-149214-0002.wav"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 5,
+        "path": "real_clean/2086/2086-149220-0012.flac",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_clean\\2086\\2086-149220-0012.flac"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 6,
+        "path": "real_8k/2086/2086-149220-0010.wav",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_8k\\2086\\2086-149220-0010.wav"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 7,
+        "path": "real_mp3/2086/2086-149220-0017.mp3",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_mp3\\2086\\2086-149220-0017.mp3"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 8,
+        "path": "real_noisy/2086/2086-149220-0048.wav",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_noisy\\2086\\2086-149220-0048.wav"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 9,
+        "path": "real_clean/2086/2086-149220-0000.flac",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_clean\\2086\\2086-149220-0000.flac"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 10,
+        "path": "real_8k/2086/2086-149220-0042.wav",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_8k\\2086\\2086-149220-0042.wav"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 11,
+        "path": "real_mp3/2086/2086-149220-0004.mp3",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_mp3\\2086\\2086-149220-0004.mp3"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 12,
+        "path": "real_noisy/2086/2086-149220-0034.wav",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_noisy\\2086\\2086-149220-0034.wav"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 13,
+        "path": "real_clean/2086/2086-149220-0037.flac",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_clean\\2086\\2086-149220-0037.flac"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 14,
+        "path": "real_8k/2086/2086-149220-0014.wav",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_8k\\2086\\2086-149220-0014.wav"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 15,
+        "path": "real_mp3/2086/2086-149220-0033.mp3",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_mp3\\2086\\2086-149220-0033.mp3"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 16,
+        "path": "real_noisy/2086/2086-149220-0016.wav",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_noisy\\2086\\2086-149220-0016.wav"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 17,
+        "path": "real_clean/2086/2086-149220-0035.flac",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_clean\\2086\\2086-149220-0035.flac"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 18,
+        "path": "real_8k/2086/2086-149220-0028.wav",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_8k\\2086\\2086-149220-0028.wav"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 19,
+        "path": "real_mp3/2086/2086-149220-0011.mp3",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_mp3\\2086\\2086-149220-0011.mp3"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 20,
+        "path": "real_noisy/2086/2086-149220-0013.wav",
+        "resolved_path": "C:\\Users\\User\\AppData\\Roaming\\strawberry\\Synced\\2\\strawberry_default\\sessions\\31c7784c-524e-4cdd-a3f0-6be23c52c2be\\work\\proj\\backend\\data\\cross_generator_v4\\real_noisy\\2086\\2086-149220-0013.wav"
+      }
+    ],
+    "unsafe_path": [
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 961,
+        "path": "/tmp/fleurs_hi/test/17191669298005207755.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 962,
+        "path": "/tmp/fleurs_hi/test/9838259495032080980.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 963,
+        "path": "/tmp/fleurs_hi/test/758729106769965945.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 964,
+        "path": "/tmp/fleurs_hi/test/533946222103008669.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 965,
+        "path": "/tmp/fleurs_hi/test/16619231656724994690.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 966,
+        "path": "/tmp/fleurs_hi/test/3985857706519265313.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 967,
+        "path": "/tmp/fleurs_hi/test/4125842991616650576.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 968,
+        "path": "/tmp/fleurs_hi/test/10027305580492162464.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 969,
+        "path": "/tmp/fleurs_hi/test/18194643634199893480.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 970,
+        "path": "/tmp/fleurs_hi/test/3992304891384559550.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 971,
+        "path": "/tmp/fleurs_hi/test/4379227306928725703.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 972,
+        "path": "/tmp/fleurs_hi/test/4462641808853701317.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 973,
+        "path": "/tmp/fleurs_hi/test/17173502838497689842.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 974,
+        "path": "/tmp/fleurs_hi/test/4237224709680026844.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 975,
+        "path": "/tmp/fleurs_hi/test/4884624364430157615.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 976,
+        "path": "/tmp/fleurs_hi/test/8753339661978137144.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 977,
+        "path": "/tmp/fleurs_hi/test/1307993758979104205.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 978,
+        "path": "/tmp/fleurs_hi/test/18179665096930871285.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 979,
+        "path": "/tmp/fleurs_hi/test/2530253162481007097.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      },
+      {
+        "manifest": "data\\cross_generator_v4\\manifests\\all_hi.jsonl",
+        "line": 980,
+        "path": "/tmp/fleurs_hi/test/5478097136543186772.wav",
+        "error": "absolute paths and path traversal are not allowed"
+      }
+    ]
+  },
+  "max_examples_per_error": 20,
+  "checks": {
+    "content_hash": "sha256_streamed_actual_files_only",
+    "speaker_disjoint": "all_pairs_global_ids_no_source_exemptions",
+    "generator_disjoint": "all_pairs_synthetic_generator_ids",
+    "holdout": "separate_partition_checked_against_all_other_partitions"
+  },
+  "limitations": [
+    "No audio decoding, speech validation, licensing verification, training or accuracy measurement.",
+    "Disjointness is only as reliable as manifest identities; missing/proxy identities fail closed.",
+    "Unknown languages are counted, never inferred; byte hashes do not detect re-encoded duplicates.",
+    "Snapshot check: inputs must not be modified concurrently."
+  ]
+}

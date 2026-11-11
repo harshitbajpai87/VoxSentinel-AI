@@ -1,320 +1,125 @@
-// Marketing landing page — foreground only.
-//
-// Honesty rules that bind the rest of the app apply here too: the hero
-// illustration shows an ILLUSTRATIVE sample card (clearly labelled), never a
-// real detection result; the page invents no pricing, testimonials, usage
-// counters, certifications or guarantees. Every button routes to a real,
-// existing page of the application.
+import { useState, type CSSProperties, type PointerEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, useReducedMotion } from 'framer-motion'
-import { CheckIcon, PlayIcon, ShieldIcon, WaveformIcon } from '../components/icons'
-import { Button, LinkButton, Tag } from '../components/ui'
-import { Reveal, StaggerGroup, StaggerItem } from '../components/motion/Reveal'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { Reveal } from '../components/motion/Reveal'
 
-/* ---------------- hero illustration ---------------- */
+const TOOLS = [
+  { name: 'Audio analysis', short: 'Analyze', route: '/analyze', label: 'Inspect synthetic audio signals', body: 'Upload a recording and inspect risk signals, measured audio features, and window-by-window scores.', detail: 'MP3 · WAV · M4A · FLAC · OGG', color: 'peach' },
+  { name: 'Speaker comparison', short: 'Compare', route: '/verify', label: 'Compare two speaker recordings', body: 'Compare an authorized reference voice with a second recording and review speaker similarity against the model’s limits.', detail: 'Reference recording + comparison clip', color: 'sage' },
+  { name: 'Scam protection', short: 'Protect', route: '/protection', label: 'Screen a suspicious call', body: 'Review a call recording for scam and coercion signals, combining transcription, voice checks and pattern analysis.', detail: 'Family emergency & scam screening', color: 'rose' },
+  { name: 'Live recording', short: 'Record', route: '/record', label: 'Record from your microphone', body: 'Capture audio with consent and send it through the same analysis pipeline for a full-clip result.', detail: 'Microphone permission required', color: 'butter' },
+] as const
 
-/** Decorative animated bars inside the illustrative player card. */
-function HeroWave() {
-  const reduced = useReducedMotion()
-  const heights = [0.45, 0.7, 0.35, 0.85, 0.55, 0.95, 0.4, 0.75, 0.6, 0.9, 0.5, 0.8]
-  return (
-    <div className="flex h-16 items-center gap-1.5" aria-hidden="true">
-      {heights.map((h, i) => (
-        <motion.span
-          key={i}
-          className="w-1.5 rounded-full bg-gradient-to-t from-accent via-magenta to-coral"
-          style={{ height: `${h * 100}%` }}
-          {...(reduced
-            ? {}
-            : {
-                animate: { scaleY: [1, 0.45, 1] },
-                transition: {
-                  duration: 1.6 + (i % 4) * 0.35,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                  delay: i * 0.12,
-                },
-              })}
-        />
-      ))}
-    </div>
-  )
-}
-
-/** Illustrative floating analysis card. Labelled as a demo, never real output. */
-function HeroIllustration() {
-  const reduced = useReducedMotion()
-  const float = (duration: number, delay: number, y: number) =>
-    reduced
-      ? {}
-      : {
-          animate: { y: [0, y, 0] },
-          transition: { duration, delay, repeat: Infinity, ease: 'easeInOut' as const },
-        }
-
-  return (
-    <div className="relative mx-auto w-full max-w-md">
-      {/* Ambient glows — foreground decoration inside the illustration only. */}
-      <div
-        aria-hidden="true"
-        className="absolute -left-10 -top-10 h-44 w-44 rounded-full bg-lavender/70 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute -bottom-12 -right-6 h-48 w-48 rounded-full bg-soft-coral/80 blur-3xl"
-      />
-
-      {/* Main illustrative audio player card */}
-      <motion.div
-        className="relative rounded-2xl border border-line bg-surface p-5 shadow-card"
-        initial={{ opacity: 0, scale: 0.94 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.15, ease: [0.21, 0.6, 0.35, 1] }}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-r from-accent-bright via-magenta to-coral text-white">
-              <PlayIcon width={14} height={14} />
-            </span>
-            <div>
-              <p className="text-sm font-semibold text-ink">interview clip.wav</p>
-              <p className="text-xs text-ink-faint">0:07 · 1.2 MB · 16 kHz</p>
-            </div>
-          </div>
-          <Tag>Illustrative demo</Tag>
-        </div>
-        <div className="mt-4">
-          <HeroWave />
-        </div>
-        <div className="mt-4 h-1.5 rounded-full bg-surface-3">
-          <motion.div
-            className="h-1.5 rounded-full bg-gradient-to-r from-accent via-magenta to-coral"
-            {...(reduced ? {} : { animate: { width: ['8%', '86%'] }, transition: { duration: 7, repeat: Infinity, ease: 'linear' } })}
-            style={{ width: '60%' }}
-          />
-        </div>
-      </motion.div>
-
-      {/* Floating: synthetic-voice warning card */}
-      <motion.div
-        className="absolute -right-4 top-24 w-56 rounded-xl border border-line bg-surface p-4 shadow-card sm:-right-10"
-        {...float(5.2, 0.3, -10)}
-      >
-        <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-soft-coral text-danger">
-            <ShieldIcon width={13} height={13} />
-          </span>
-          <p className="text-xs font-semibold text-ink">Synthetic voice signals</p>
-        </div>
-        <p className="mt-2 text-[11px] leading-relaxed text-ink-dim">
-          Spectral flatness and pitch patterns consistent with synthesis.
-        </p>
-      </motion.div>
-
-      {/* Floating: risk + confidence card */}
-      <motion.div
-        className="absolute -left-4 bottom-16 w-52 rounded-xl border border-line bg-surface p-4 shadow-card sm:-left-10"
-        {...float(6.4, 0.8, 12)}
-      >
-        <p className="text-[11px] font-medium text-ink-faint">Risk score (demo)</p>
-        <div className="mt-2 flex items-baseline gap-2">
-          <p className="text-2xl font-semibold text-ink">72%</p>
-          <p className="text-[11px] text-ink-dim">model confidence 64%</p>
-        </div>
-        <div className="mt-2 h-1.5 rounded-full bg-surface-3">
-          <div className="h-1.5 w-[72%] rounded-full bg-gradient-to-r from-accent via-magenta to-coral" />
-        </div>
-      </motion.div>
-
-      {/* Floating: upload action chip */}
-      <motion.div
-        className="absolute -top-5 right-10 flex items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-2 shadow-card"
-        {...float(4.6, 0.6, -8)}
-      >
-        <WaveformIcon width={14} height={14} className="text-accent" />
-        <span className="text-xs font-medium text-ink">Upload Audio</span>
-      </motion.div>
-    </div>
-  )
-}
-
-/* ---------------- sections ---------------- */
-
-const FEATURES = [
-  {
-    title: 'Deepfake & clone detection',
-    text: 'A trained detector scores every clip across spectral and prosodic features — and every verdict shows the measured evidence behind it.',
-  },
-  {
-    title: 'Explainable AI results',
-    text: 'No black-box percentage: windowed scores, measured features and honest limitations are reported with each analysis.',
-  },
-  {
-    title: 'Secure & privacy-focused',
-    text: 'Consent is required before any analysis, audio is processed for the analysis only, and the whole pipeline can run locally.',
-  },
+const FAQS = [
+  ['Can a score prove a voice is real?', 'No. Model outputs are risk signals, not proof. Recording quality, noise, compression and unfamiliar voices can affect the result. Check the evidence and verify important claims independently.'],
+  ['What happens when the backend is offline?', 'The workspace shows a connection error rather than inventing a result. Start the existing backend, check the configured API address, then re-check the connection.'],
+  ['Can I record someone without their permission?', 'Use recordings only when you have the right and consent to do so. The recording and upload workspaces include consent controls.'],
+  ['Where can I read the technical details?', 'The repository documentation (docs/ and backend/docs/) describes the pipeline, the model card and the known limits of this prototype.'],
 ]
 
-const STEPS = [
-  { title: 'Upload or record', text: 'Drop an MP3, WAV, M4A, FLAC or OGG clip — or record live from your microphone with consent.' },
-  { title: 'Analyze with real models', text: 'The detector extracts features, scores the clip and calibrates the probability — no fabricated verdicts.' },
-  { title: 'Inspect the evidence', text: 'Review the classification, risk percentage, per-window scores and honest limitations before acting.' },
-]
+function Arrow({ diagonal = false }: { diagonal?: boolean }) {
+  return <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d={diagonal ? 'M5 19 19 5M5 5h14v14' : 'M4 12h15M12 5l7 7-7 7'} stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+}
+
+function VoiceMark({ compact = false }: { compact?: boolean }) {
+  return <span className={`voice-mark ${compact ? 'compact' : ''}`} aria-hidden="true">{[13, 23, 33, 22, 13].map((h, i) => <i key={i} style={{ height: h }} />)}</span>
+}
+
+function VoiceArt() {
+  const rings = Array.from({ length: 11 }, (_, k) => {
+    const points = Array.from({ length: 181 }, (_, j) => {
+      const t = j / 180 * Math.PI * 2
+      const r = 105 + k * 9 + Math.sin(t * 5 + k * .36) * (9 + k * 1.1) + Math.cos(t * 3 - k * .22) * 7
+      return `${(250 + Math.cos(t) * r).toFixed(2)},${(250 + Math.sin(t) * r).toFixed(2)}`
+    })
+    return <path key={k} d={`M${points.join(' L')}Z`} fill="none" stroke={k % 3 === 0 ? '#6b7543' : k % 3 === 1 ? '#b54b34' : '#994c75'} strokeWidth={k % 3 === 0 ? '1.4' : '1'} opacity={.3 + k * .055} />
+  })
+  return <div className="voice-art" aria-hidden="true">
+    <span className="art-coordinate top">SPECTRAL STUDY / 001</span>
+    <svg className="voice-rings" viewBox="0 0 500 500"><circle cx="250" cy="250" r="238" fill="none" stroke="#d9cbbb" strokeWidth=".65" strokeDasharray="2 8" />{rings}</svg>
+    <div className="art-center"><VoiceMark /><span>Signal<br />inspection.</span></div>
+    <span className="art-coordinate bottom">DECORATIVE ILLUSTRATION — NOT A RESULT</span>
+    <span className="art-orbit"><i /></span>
+  </div>
+}
+
+function MiniWave({ variant = 0 }: { variant?: number }) {
+  return <div className="mini-wave" aria-hidden="true">{Array.from({ length: 43 }, (_, i) => <i key={i} style={{ height: `${12 + (Math.sin(i * .8 + variant) * .5 + .5) * (24 + Math.sin(i * .29) * 25)}%`, '--bar-delay': `${i * .035}s` } as CSSProperties} />)}</div>
+}
+
+function FeatureIllustration({ index }: { index: number }) {
+  return <div className={`feature-art ${TOOLS[index].color}`} aria-hidden="true">
+    <div className="paper-back back-one" /><div className="paper-back back-two" />
+    <div className="paper-front">
+      <div className="paper-top"><VoiceMark compact /><span>VOXSENTINEL / {TOOLS[index].short.toUpperCase()}</span><span>↗</span></div>
+      {index === 0 && <><p className="paper-title">Audio<br />analysis.</p><MiniWave /><div className="paper-rule" /><p className="paper-label">Waveform illustration</p></>}
+      {index === 1 && <><p className="paper-title">Speaker<br />comparison.</p><MiniWave variant={1} /><MiniWave variant={2} /><p className="paper-label">Two illustrative audio tracks</p></>}
+      {index === 2 && <><p className="paper-title">Scam<br />screening.</p><div className="check-row"><span>01</span> Stop the conversation.</div><div className="check-row"><span>02</span> Call a number you trust.</div><div className="check-row"><span>03</span> Verify before sending.</div></>}
+      {index === 3 && <><p className="paper-title">Recording<br />capture.</p><div className="record-illustration"><VoiceMark /><span>Consent before capture</span></div><p className="paper-label">Recording starts only in the workspace</p></>}
+    </div>
+  </div>
+}
 
 export default function LandingPage() {
-  const reduced = useReducedMotion()
-  const hoverLift = reduced ? '' : 'transition-transform duration-200 hover:-translate-y-0.5'
+  const prefersReduced = useReducedMotion()
+  const [paused, setPaused] = useState(false)
+  const [active, setActive] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const still = paused || !!prefersReduced
 
-  return (
-    <div className="min-h-screen bg-canvas">
-      {/* Navigation */}
-      <Reveal delay={0.05}>
-        <header className="border-b border-line bg-surface">
-          <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-            <Link to="/dashboard" className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-accent-bright via-magenta to-coral text-white">
-                <WaveformIcon width={17} height={17} />
-              </span>
-              <span>
-                <span className="block text-sm font-bold text-ink">VoxSentinel AI</span>
-                <span className="block text-[11px] text-ink-faint">Voice Authenticity. Trusted.</span>
-              </span>
-            </Link>
-            <div className="hidden items-center gap-6 text-sm text-ink-dim md:flex">
-              <a href="#how" className="hover:text-accent">How It Works</a>
-              <a href="#features" className="hover:text-accent">Features</a>
-              <Link to="/docs" className="hover:text-accent">Docs</Link>
-            </div>
-            <div className="flex items-center gap-3">
-              <LinkButton href="/dashboard" variant="secondary">Open Dashboard</LinkButton>
-              <LinkButton href="/analyze">Analyze Audio</LinkButton>
-            </div>
-          </nav>
-        </header>
-      </Reveal>
+  const tilt = (event: PointerEvent<HTMLDivElement>) => {
+    if (still || event.pointerType !== 'mouse') return
+    const box = event.currentTarget.getBoundingClientRect()
+    event.currentTarget.style.setProperty('--tilt-x', `${(event.clientY - box.top - box.height / 2) / box.height * -7}deg`)
+    event.currentTarget.style.setProperty('--tilt-y', `${(event.clientX - box.left - box.width / 2) / box.width * 7}deg`)
+  }
+  const resetTilt = (event: PointerEvent<HTMLDivElement>) => {
+    event.currentTarget.style.setProperty('--tilt-x', '0deg')
+    event.currentTarget.style.setProperty('--tilt-y', '0deg')
+  }
 
-      {/* Hero */}
-      <section className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-20 pt-16 lg:grid-cols-2 lg:pt-24">
-        <div>
-          <Reveal delay={0.15}>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-accent">
-              <ShieldIcon width={12} height={12} /> AI-Powered Voice Security
-            </span>
-          </Reveal>
-          <Reveal delay={0.25}>
-            <h1 className="mt-5 text-4xl font-bold leading-tight tracking-tight text-ink sm:text-5xl">
-              Know What&rsquo;s Real.{' '}
-              <span className="bg-gradient-to-r from-accent-bright via-magenta to-coral bg-clip-text text-transparent">
-                Detect What&rsquo;s Synthetic.
-              </span>
-            </h1>
-          </Reveal>
-          <Reveal delay={0.35}>
-            <p className="mt-4 max-w-md text-base leading-relaxed text-ink-dim">
-              AI-powered voice authenticity analysis for a world where audio can no longer be
-              trusted at face value.
-            </p>
-          </Reveal>
-          <StaggerGroup className="mt-6 space-y-2.5">
-            {FEATURES.map((f) => (
-              <StaggerItem key={f.title}>
-                <p className="flex items-center gap-2.5 text-sm text-ink">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-lavender text-accent">
-                    <CheckIcon width={11} height={11} />
-                  </span>
-                  {f.title}
-                </p>
-              </StaggerItem>
-            ))}
-          </StaggerGroup>
-          <Reveal delay={0.55}>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <LinkButton href="/analyze" className="group">
-                Analyze Audio
-                <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
-              </LinkButton>
-              <LinkButton href="/dashboard" variant="secondary">Explore Features</LinkButton>
-            </div>
-            <p className="mt-4 text-xs text-ink-faint">
-              Supported formats: MP3 · WAV · M4A · FLAC · OGG
-            </p>
-          </Reveal>
+  return <div className={`landing ${still ? 'motion-paused' : ''}`}>
+    <a className="skip-link" href="#main">Skip to content</a>
+    <header className="site-header">
+      <Link className="site-brand" to="/" aria-label="VoxSentinel AI home"><VoiceMark compact /><span>VoxSentinel<span className="brand-ai"> AI</span></span></Link>
+      <nav className="desktop-nav" aria-label="Site navigation"><a href="#tools">Core capabilities</a><a href="#process">Workflow</a></nav>
+      <div className="nav-actions"><button className="motion-toggle" onClick={() => setPaused(!paused)} aria-pressed={paused} aria-label={paused ? 'Resume decorative motion' : 'Pause decorative motion'}>{paused ? 'Motion off' : 'Motion on'}<span aria-hidden="true">{paused ? '▷' : 'Ⅱ'}</span></button><Link to="/dashboard" className="nav-workspace">Workspace <Arrow diagonal /></Link><button className="mobile-menu" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="mobile-site-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? '−' : '+'}</button></div>
+    </header>
+    {menuOpen && <nav id="mobile-site-nav" className="mobile-site-nav" aria-label="Mobile site navigation"><a href="#tools" onClick={() => setMenuOpen(false)}>Core capabilities</a><a href="#process" onClick={() => setMenuOpen(false)}>Workflow</a><Link to="/history">Analysis history</Link><Link to="/dashboard">Workspace</Link></nav>}
+
+    <main id="main">
+      <section className="hero-section" aria-labelledby="hero-heading">
+        <div className="hero-intro"><span className="eyebrow"><span className="tiny-dot" /> Research Prototype v0.1</span><span className="edition">VOXSENTINEL — AUDIO FORENSICS</span></div>
+        <div className="hero-grid">
+          <div className="hero-copy"><Reveal><h1 id="hero-heading">Synthetic Audio Detection<br /><em>&amp; Speaker Verification</em></h1></Reveal><Reveal delay={.12}><p>An open-source research workspace to inspect audio features, analyze risk signals, and investigate potential synthetic voice manipulation.</p><div className="hero-actions"><Link className="round-link" to="/analyze"><span>Analyze<br />a clip</span><Arrow diagonal /></Link><Link to="/record" className="text-link">Or record your own <Arrow /></Link></div></Reveal></div>
+          <div className="hero-visual" onPointerMove={tilt} onPointerLeave={resetTilt}><VoiceArt /><div className="visual-note"><span>01 / THE VOICEPRINT</span><p>Illustrative feature view.<br />Not a computed result.</p></div></div>
         </div>
-        <Reveal delay={0.3} className="lg:pl-6">
-          <HeroIllustration />
-        </Reveal>
+        <div className="hero-bottom"><span>Research Prototype v0.1 • For evaluation only</span><a href="#tools" className="scroll-prompt">Explore the capabilities <span aria-hidden="true">↓</span></a></div>
       </section>
 
-      {/* How it works */}
-      <section id="how" className="border-t border-line bg-surface px-6 py-20">
-        <div className="mx-auto max-w-6xl">
-          <Reveal inView>
-            <h2 className="text-2xl font-bold text-ink">How VoxSentinel AI works</h2>
-            <p className="mt-2 max-w-xl text-sm text-ink-dim">
-              Three steps, every number from a real model — nothing simulated.
-            </p>
-          </Reveal>
-          <StaggerGroup className="mt-10 grid gap-6 md:grid-cols-3">
-            {STEPS.map((s, i) => (
-              <StaggerItem key={s.title} className={`rounded-xl border border-line bg-canvas p-6 ${hoverLift}`}>
-                <span className="text-xs font-semibold text-ink-faint">0{i + 1}</span>
-                <h3 className="mt-2 text-base font-semibold text-ink">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink-dim">{s.text}</p>
-              </StaggerItem>
-            ))}
-          </StaggerGroup>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section id="features" className="px-6 py-20">
-        <div className="mx-auto max-w-6xl">
-          <Reveal inView>
-            <h2 className="text-2xl font-bold text-ink">Built for evidence, not vibes</h2>
-            <p className="mt-2 max-w-xl text-sm text-ink-dim">
-              A research prototype that reports what the models actually measured.
-            </p>
-          </Reveal>
-          <StaggerGroup className="mt-10 grid gap-6 md:grid-cols-3">
-            {FEATURES.map((f) => (
-              <StaggerItem key={f.title} className={`rounded-xl border border-line bg-surface p-6 shadow-card ${hoverLift}`}>
-                <h3 className="text-base font-semibold text-ink">{f.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink-dim">{f.text}</p>
-              </StaggerItem>
-            ))}
-          </StaggerGroup>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="border-t border-line bg-surface px-6 py-20">
-        <Reveal inView className="mx-auto max-w-3xl text-center">
-          <h2 className="text-2xl font-bold text-ink">Analyze your first clip</h2>
-          <p className="mt-3 text-sm text-ink-dim">
-            The full analysis workspace — upload, recording, history and evaluation — is one
-            click away.
-          </p>
-          <div className="mt-6 flex justify-center gap-3">
-            <LinkButton href="/analyze" className="group">
-              Analyze Audio
-              <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
-            </LinkButton>
-            <LinkButton href="/record" variant="secondary">Record Live</LinkButton>
-          </div>
-        </Reveal>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-line px-6 py-8">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 text-xs text-ink-faint">
-          <p>VoxSentinel AI — research prototype. Results are risk signals to investigate, never proof of authenticity.</p>
-          <div className="flex gap-4">
-            <Link to="/docs" className="hover:text-accent">Documentation</Link>
-            <Link to="/security" className="hover:text-accent">Security &amp; Audit</Link>
-            <Link to="/settings" className="hover:text-accent">Settings</Link>
+      <section id="tools" className="tool-section" aria-labelledby="tools-heading">
+        <div className="section-top"><span className="eyebrow">01 / CORE CAPABILITIES</span><span>Modular tools designed for technical inspection and forensic audio analysis.</span></div>
+        <Reveal inView><h2 id="tools-heading">Core<br /><em>capabilities.</em></h2></Reveal>
+        <div className="tool-stage">
+          <div className="tool-controls" role="tablist" aria-label="Explore audio tools">{TOOLS.map((tool, i) => <button id={`tool-tab-${i}`} key={tool.short} role="tab" aria-selected={active === i} aria-controls={`tool-panel-${i}`} tabIndex={active === i ? 0 : -1} onClick={() => setActive(i)} onKeyDown={(e) => { let next = i; if (e.key === 'ArrowDown' || e.key === 'ArrowRight') next = (i + 1) % TOOLS.length; else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') next = (i - 1 + TOOLS.length) % TOOLS.length; else if (e.key === 'Home') next = 0; else if (e.key === 'End') next = TOOLS.length - 1; else return; e.preventDefault(); setActive(next); document.getElementById(`tool-tab-${next}`)?.focus() }}><span>0{i + 1}</span>{tool.name}<Arrow diagonal /></button>)}</div>
+          <div id={`tool-panel-${active}`} role="tabpanel" aria-labelledby={`tool-tab-${active}`} className="tool-panel" tabIndex={0}>
+            <AnimatePresence mode="wait" initial={false}><motion.div key={active} initial={still ? false : { opacity: 0, y: 14, rotate: -1 }} animate={{ opacity: 1, y: 0, rotate: 0 }} exit={{ opacity: 0, y: still ? 0 : -8 }} transition={{ duration: still ? 0 : .25 }}><FeatureIllustration index={active} /></motion.div></AnimatePresence>
+            <div className="tool-description"><p className="eyebrow">{TOOLS[active].detail}</p><h3>{TOOLS[active].label}</h3><p>{TOOLS[active].body}</p><Link to={TOOLS[active].route} className="text-link">Open {TOOLS[active].name.toLowerCase()} <Arrow /></Link></div>
           </div>
         </div>
-      </footer>
-    </div>
-  )
+      </section>
+
+      <section id="process" className="process-section" aria-labelledby="process-heading"><div className="section-top"><span className="eyebrow">02 / WORKFLOW</span><span>Three stages, reproducible at every step.</span></div><div className="process-grid"><Reveal inView><h2 id="process-heading">Three-step<br /><em>workflow.</em></h2><p className="process-intro">From input and consent to a window-by-window forensic review.</p><a href="#disclaimer" className="text-link">Model limitations &amp; disclaimer <Arrow /></a></Reveal><div className="process-steps">{[
+        ['01', 'Input & Consent', 'Upload an audio clip (MP3, WAV, M4A, FLAC) or record with active consent indicators.'],
+        ['02', 'Pipeline Extraction', 'The backend extracts spectral features and runs detection models, outputting transparent error states if a file fails.'],
+        ['03', 'Forensic Review', 'Inspect window-by-window risk scores and cross-verify findings independently.'],
+      ].map(([n, title, body]) => <Reveal inView key={n}><article className="process-step"><span>{n}</span><div><h3>{title}</h3><p>{body}</p></div><Arrow diagonal /></article></Reveal>)}</div></div></section>
+
+      <section id="disclaimer" className="evidence-section" aria-labelledby="evidence-heading"><div className="evidence-inner"><div className="evidence-stamp"><VoiceMark /><span>DISCLAIMER</span></div><div><span className="eyebrow">READ BEFORE USE</span><h2 id="evidence-heading">Model Limitations<br /><em>&amp; Disclaimer</em></h2><p>This is a research tool. Environmental noise, compression, and language variations can impact accuracy. Risk scores represent model probabilities, not definitive proof. Always verify critical audio evidence through independent channels.</p></div></div></section>
+
+      <section className="faq-section" aria-labelledby="faq-heading"><div><span className="eyebrow">03 / COMMON QUESTIONS</span><h2 id="faq-heading">Frequently<br /><em>asked.</em></h2></div><div className="faq-list">{FAQS.map(([q, a]) => <details key={q}><summary>{q}<span aria-hidden="true">+</span></summary><p>{a}</p></details>)}</div></section>
+      <section className="closing-section"><p className="eyebrow">NEXT STEP</p><h2>Start with an<br /><em>audio analysis.</em></h2><div><Link to="/analyze" className="pill-link">Open audio analysis <Arrow diagonal /></Link><Link to="/dashboard" className="text-link">Explore the workspace <Arrow /></Link></div></section>
+    </main>
+    <footer className="site-footer"><div className="footer-top"><Link className="site-brand" to="/"><VoiceMark compact /><span>VoxSentinel AI</span></Link><div><Link to="/analyze">Analyze audio</Link><Link to="/verify">Speaker verification</Link><Link to="/history">Analysis history</Link></div><a href="#main">Back to top ↑</a></div><div className="footer-bottom"><span>AI Foundations · SIH 2026 · SIH26104</span><span>Harshit Bajpai & Oisiky Sinha</span><span>Research Prototype • For Evaluation Only</span></div></footer>
+  </div>
 }

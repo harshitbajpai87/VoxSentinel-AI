@@ -46,9 +46,14 @@ frontend/.cache/
 *.tsbuildinfo
 .eslintcache
 
+# Vercel CLI state
+.vercel
+.vercel/
+
 # Logs & Debugging
 logs/
 *.log
+!verification/*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -57,10 +62,11 @@ lerna-debug.log*
 
 # Environment files & Secrets
 .env
-.env.local
-.env.*.local
+.env.*
 backend/.env
+backend/.env.*
 frontend/.env
+frontend/.env.*
 *.local.env
 
 # Explicitly ensure example environment templates are tracked
@@ -68,14 +74,12 @@ frontend/.env
 !backend/.env.example
 !frontend/.env.example
 
-# Local SQLite databases & local data directories
+# Local SQLite databases
 *.db
 *.db-journal
 *.sqlite
 *.sqlite3
 backend/voxsentinel.db
-backend/data/
-data/
 
 # IDEs & Editors
 .idea/

@@ -205,6 +205,8 @@ export default function AnalyzeAudioPage() {
     if (!selection || !canAnalyze) return
     setAnalysis({ status: 'submitting', progress: null })
     try {
+      // analyzeAudio() prepares the upload: the ORIGINAL file is sent when the
+      // backend can decode it, and only converted in the browser when it cannot.
       const record = await analyzeAudio(selection.file, {
         onProgress: ({ loaded, total }) =>
           setAnalysis({
@@ -217,7 +219,7 @@ export default function AnalyzeAudioPage() {
     } catch (err) {
       let message: string
       if (err instanceof ApiUnavailableError) message = err.message
-      else if (err instanceof ApiError) message = mapAnalyzeError(err.status, err.code)
+      else if (err instanceof ApiError) message = mapAnalyzeError(err.status, err.code, err.message)
       else message = 'The analysis request failed unexpectedly.'
       setAnalysis({ status: 'failed', message })
     }
@@ -235,7 +237,7 @@ export default function AnalyzeAudioPage() {
     <div className="animate-fade-in">
       <PageHeader
         title="Analyze Audio"
-        subtitle="Upload a clip, inspect it locally, then send it for synthetic-speech analysis. The file never leaves your device until you start the analysis."
+        subtitle="Upload a clip, inspect it locally, then send it for synthetic-speech analysis."
         actions={
           backendReady ? (
             modelReady ? (

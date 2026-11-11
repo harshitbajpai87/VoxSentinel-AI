@@ -66,19 +66,22 @@ def test_window_scores_present_for_long_clip(settings, trained_model_dir):
     with TestClient(app) as c:
         body = _analyze(c, duration=9.0)
         windows = body["evidence"]["time_window_scores"]
-        assert len(windows) == 2
+        assert len(windows) == 4
         for w in windows:
             assert 0.0 <= w["score"] <= 1.0
             assert w["end_s"] > w["start_s"]
         assert windows[0]["start_s"] == 0.0
 
 
-def test_short_clip_has_no_window_scores(settings, trained_model_dir):
+def test_short_clip_has_one_window_with_real_endpoint(settings, trained_model_dir):
     settings = replace(settings, detector_model_path=str(trained_model_dir / "detector.joblib"))
     app = create_app(settings=settings)
     with TestClient(app) as c:
         body = _analyze(c, duration=3.0)
-        assert body["evidence"]["time_window_scores"] == []
+        windows = body["evidence"]["time_window_scores"]
+        assert len(windows) == 1
+        assert windows[0]["start_s"] == 0.0
+        assert windows[0]["end_s"] == 3.0
 
 
 # ---------------------------------------------------------------------------

@@ -9,7 +9,6 @@ import {
   Card,
   PageHeader,
   Pill,
-  Tag,
 } from '../components/ui'
 import { FingerprintIcon, UploadIcon } from '../components/icons'
 
@@ -104,7 +103,7 @@ export default function SpeakerVerificationPage() {
     <div className="animate-fade-in">
       <PageHeader
         title="Speaker Verification"
-        subtitle="Optional: compare a recording against an authorized reference clip from the same person, using speaker embeddings."
+        subtitle="Compare an audio recording against an authorized reference clip using ECAPA-TDNN embeddings."
         actions={
           speakerReady ? (
             <Pill tone="ok">Embedding model ready</Pill>
@@ -114,12 +113,11 @@ export default function SpeakerVerificationPage() {
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+      <div className="space-y-6">
+        <div className="space-y-6">
           <Card
             title="Authorized comparison"
             subtitle="Both recordings must be provided with explicit authorization. We never identify a person from voice alone."
-            actions={<Tag>ECAPA-TDNN embeddings</Tag>}
           >
             <div className="grid gap-4 sm:grid-cols-2">
               <UploadSlot
@@ -147,8 +145,7 @@ export default function SpeakerVerificationPage() {
                   className="mt-0.5 h-4 w-4 accent-accent"
                 />
                 <span className="text-ink-dim">
-                  I am authorized to use the reference recording, and the reference speaker has
-                  consented to this comparison.
+                  I confirm I have explicit authorization and consent to use both reference clips.
                 </span>
               </label>
               <label className="flex cursor-pointer items-start gap-3 text-sm">
@@ -159,8 +156,7 @@ export default function SpeakerVerificationPage() {
                   className="mt-0.5 h-4 w-4 accent-accent"
                 />
                 <span className="text-ink-dim">
-                  I consent to both recordings being processed for this analysis. Audio is used
-                  only for the comparison and is deleted afterwards.
+                  I consent to processing these audio files solely for comparison purposes.
                 </span>
               </label>
             </div>
@@ -215,26 +211,12 @@ export default function SpeakerVerificationPage() {
                   <p className="text-xs text-ink-dim">
                     Embedding model: {result.embedding_model ?? 'unknown'}.
                   </p>
-                  {result.warnings.length > 0 && (
-                    <Callout tone="warning" title="Quality warnings">{result.warnings.join('; ')}</Callout>
-                  )}
-                  {result.limitations.length > 0 && (
-                    <Callout tone="ethics" title="Limitations">{result.limitations.join(' ')}</Callout>
-                  )}
                 </div>
               )}
             </Card>
           )}
         </div>
 
-        <div className="space-y-6">
-          <Callout tone="warning" title="Similarity is not authenticity">
-            A cloned voice can score high similarity to its target, and a genuine clip can score
-            low because of noise, illness, emotion, language or recording conditions. Speaker
-            verification answers “is this consistent with the reference speaker?”, never “is this
-            audio synthetic?” — that is the separate Analyze Audio workflow.
-          </Callout>
-        </div>
       </div>
     </div>
   )

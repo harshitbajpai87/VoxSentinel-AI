@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import replace
 
 import numpy as np
+import pytest
 from fastapi.testclient import TestClient
 
 from app.main import create_app
@@ -49,7 +50,10 @@ def test_analyze_returns_real_detector_scores(settings, trained_model_dir):
         assert np.isfinite(scores["raw_score"])
         assert 0.0 <= scores["raw_score"] <= 1.0
         assert scores["calibrated_probability"] is None  # never invented
-        assert scores["uncertainty"] is None
+        assert scores["uncertainty"] == pytest.approx(
+            1 - 2 * abs(scores["raw_score"] - 0.5)
+        )
+        assert "NOT a validated error probability" in scores["uncertainty_method"]
         assert body["model"]["name"] == "VoxSentinel MFCC Baseline"
         assert body["decision"]["category"] in {
             "low_observed_risk",

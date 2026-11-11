@@ -12,5 +12,9 @@ target-version = "py311"
 select = ["E", "F", "W", "I", "UP", "B"]
 ignore = ["B008"]  # FastAPI's Annotated dependencies are idiomatic
 
+[tool.ruff.lint.per-file-ignores]
+# Manual, human-read smoke script: its assertions read better on one line.
+"tests/api_checks.py" = ["E501"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

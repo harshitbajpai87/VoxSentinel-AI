@@ -36,6 +36,12 @@ class TranscriptionResult:
     model: str = ""
     error: str | None = None
     limitations: list[str] = field(default_factory=list)
+    #: How the language was determined: engine | script_detection | request_hint.
+    language_source: str | None = None
+    #: Per-engine telemetry from the multi-engine chain (empty for one engine).
+    engines: list[dict] = field(default_factory=list)
+    #: Engine whose transcript was selected after any fallback/comparison.
+    selected_engine: str | None = None
 
 
 class WhisperTranscriber:
@@ -134,3 +140,22 @@ class WhisperTranscriber:
             "device": self._device,
             "available": self.is_available(),
         }
+
+def default_transcriber():
+    """Pick the best transcriber available on this machine.
+
+    Preference order:
+      1. local faster-whisper (private, offline, free)
+      2. a remote provider when a GEMINI_API_KEY is configured (serverless hosts)
+      3. the local transcriber anyway, so `describe()` reports the real reason
+    """
+    local = WhisperTranscriber()
+    if local.is_available():
+        return local
+    try:
+        from app.protection.transcription_remote import build_remote_transcriber
+
+        remote = build_remote_transcriber()
+    except Exception:  # noqa: BLE001 - a broken optional import must not break the API
+        remote = None
+    return remote or local

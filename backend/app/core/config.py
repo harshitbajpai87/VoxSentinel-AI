@@ -36,6 +36,17 @@ def _env_float(name: str, default: float) -> float:
         return default
 
 
+def _env_optional_int(name: str, default: int | None) -> int | None:
+    raw = os.environ.get(name)
+    if raw is None or raw.strip() == "":
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        return default
+    return value if value > 0 else None
+
+
 def _env_bool(name: str, default: bool) -> bool:
     raw = os.environ.get(name)
     if raw is None or raw.strip() == "":
@@ -72,8 +83,18 @@ class Settings:
     # "Could not reach the backend (network error or CORS)". Production keeps
     # the strict explicit allowlist below.
     allow_dev_origins: bool = True
+    # Extra origin regex honoured in ANY environment. Deployments whose hostname
+    # changes per build (Vercel preview URLs) need this; an exact allowlist
+    # cannot cover them, and a missing origin here blocks every browser request
+    # with a 400 preflight while curl keeps working.
+    allowed_origin_regex: str | None = None
 
     max_upload_bytes: int = 25 * 1024 * 1024
+    # Infrastructure ceiling for a request body, in bytes. Serverless platforms
+    # cap the body BEFORE the application runs (Vercel: 4.5 MB), so the API must
+    # report the smaller value it can really honour instead of promising 25 MB
+    # and then failing with an opaque platform error.
+    hosting_body_limit_bytes: int | None = None
     min_duration_s: float = 2.0
     max_duration_s: float = 600.0
 
@@ -88,6 +109,17 @@ class Settings:
     speaker_model_path: str = "models/speaker.joblib"
     speaker_model_dir: str = "models/speaker_ecapa"
     speaker_thresholds_path: str = "models/speaker_thresholds.json"
+    # Torch-free fallbacks. On a host without librosa/torch (Vercel) the trained
+    # detector and ECAPA embedder cannot load; these keep a real, honestly
+    # labelled signal instead of returning "unavailable" for every upload.
+    forensics_enabled: bool = True
+    forensics_threshold: float = 0.50
+    mfcc_speaker_enabled: bool = True
+    # Strict mode for the speaker stack. Off by default: a host without
+    # torch/speechbrain keeps serving the honestly-labelled MFCC comparison.
+    # Turn it on when ECAPA is a hard requirement, so a misconfigured
+    # deployment fails at startup instead of silently degrading.
+    require_ecapa_speaker: bool = False
     # Data retention (Module 7). Disabled by default: enabling it makes the
     # API delete analyses older than retention_analyses_days and audit events
     # older than retention_audit_days, permanently, on a periodic background sweep.
@@ -109,6 +141,22 @@ class Settings:
     # in Vite/browser variables (VITE_*) or any client-visible file. Disabled
     # by default; generation is refused until explicitly enabled AND a key is
     # present. See docs/GNANI_PROVIDER.md for the verified contract.
+    # ------------------------------------------------------------------
+    # One provider credential, resolved once, used by every backend model
+    # that talks to Vach (Gnani): speech-to-text (/stt/v3) and
+    # text-to-speech (/api/v1/tts/inference). The key is BACKEND-ONLY and is
+    # never placed in a VITE_* variable, a response body, or the frontend.
+    # Resolution order: VOXSENTINEL_VACH_API_KEY, then the deployment-wide
+    # API_KEY, then the legacy GNANI_API_KEY.
+    # ------------------------------------------------------------------
+    vach_api_key: str = ""
+    vach_base_url: str = "https://api.vachana.ai"
+    vach_stt_timeout_s: float = 120.0
+    #: Provider hard cap is 30 s per request; stay under it and chunk longer calls.
+    vach_stt_max_chunk_seconds: float = 28.0
+    #: indic-auto = provider-side language detection (Hindi/English + 10 Indic).
+    vach_stt_language_code: str = "indic-auto"
+
     gnani_enabled: bool = False
     gnani_api_key: str = ""
     gnani_base_url: str = "https://api.vachana.ai"
@@ -147,10 +195,22 @@ class Settings:
     dataset_dir: str = "data"
     report_dir: str = "reports"
 
+    def effective_upload_limit_bytes(self) -> int:
+        """Largest upload this deployment can actually accept."""
+        if self.hosting_body_limit_bytes and self.hosting_body_limit_bytes > 0:
+            return min(self.max_upload_bytes, self.hosting_body_limit_bytes)
+        return self.max_upload_bytes
+
     def cors_origin_regex(self) -> str | None:
-        """Regex for extra dev origins, or None when disabled/non-dev."""
-        if not self.allow_dev_origins or self.app_env.lower() not in {"development", "dev", "local"}:
-            return None
+        """Regex for extra allowed origins: configured pattern, plus dev origins."""
+        patterns: list[str] = []
+        if self.allowed_origin_regex:
+            patterns.append(self.allowed_origin_regex)
+        if self.allow_dev_origins and self.app_env.lower() in {"development", "dev", "local"}:
+            patterns.append(self._dev_origin_regex())
+        return "|".join(f"(?:{p})" for p in patterns) if patterns else None
+
+    def _dev_origin_regex(self) -> str:
         # http(s)://<loopback or private LAN>:<any port>
         host = (
             r"(?:localhost|127\.0\.0\.1|0\.0\.0\.0|"
@@ -162,6 +222,30 @@ class Settings:
 
 
 
+def _resolve_vach_api_key() -> str:
+    """The single backend credential for Vach (Gnani) STT + TTS.
+
+    Checked in this order so an explicit per-service variable can override the
+    deployment-wide secret while a plain ``API_KEY`` still works on its own:
+
+      1. ``VOXSENTINEL_VACH_API_KEY``
+      2. ``VOXSENTINEL_GNANI_API_KEY`` (legacy explicit name)
+      3. ``API_KEY`` (the shared deployment secret)
+      4. ``GNANI_API_KEY`` (the provider SDK's documented variable)
+    """
+    for name in (
+        "VOXSENTINEL_VACH_API_KEY",
+        "VOXSENTINEL_GNANI_API_KEY",
+        "API_KEY",
+        "GNANI_API_KEY",
+    ):
+        value = (os.environ.get(name) or "").strip()
+        if value:
+            # A key pasted with wrapping whitespace is the usual cause of a 401.
+            return "".join(value.split()) if any(c.isspace() for c in value) else value
+    return ""
+
+
 def get_settings() -> Settings:
     """Build Settings from environment variables (defaults are safe)."""
     return Settings(
@@ -170,23 +254,50 @@ def get_settings() -> Settings:
         app_mode=_env_str("VOXSENTINEL_APP_MODE", "baseline"),
         db_url=_env_str("VOXSENTINEL_DB_URL", "sqlite:///./voxsentinel.db"),
         allowed_origins=_env_list("VOXSENTINEL_ALLOWED_ORIGINS", DEFAULT_ALLOWED_ORIGINS),
+        allowed_origin_regex=(os.environ.get("VOXSENTINEL_ALLOWED_ORIGIN_REGEX") or "").strip() or None,
         allow_dev_origins=_env_bool("VOXSENTINEL_ALLOW_DEV_ORIGINS", True),
         max_upload_bytes=_env_int("VOXSENTINEL_MAX_UPLOAD_BYTES", 25 * 1024 * 1024),
+        # Default is platform-derived: Vercel rejects bodies over 4.5 MB, so on
+        # Vercel the honest ceiling is 4.5 MB unless the operator overrides it.
+        hosting_body_limit_bytes=_env_optional_int(
+            "VOXSENTINEL_HOSTING_BODY_LIMIT_BYTES",
+            4_500_000 if os.environ.get("VERCEL") else None,
+        ),
+        ffmpeg_binary=_env_str("VOXSENTINEL_FFMPEG_BINARY", "ffmpeg"),
+        ffprobe_binary=_env_str("VOXSENTINEL_FFPROBE_BINARY", "ffprobe"),
+        ffmpeg_timeout_seconds=_env_int("VOXSENTINEL_FFMPEG_TIMEOUT_SECONDS", 30),
+        temp_max_age_seconds=_env_float("VOXSENTINEL_TEMP_MAX_AGE_SECONDS", 3600.0),
+        speaker_model_dir=_env_str("VOXSENTINEL_SPEAKER_MODEL_DIR", "models/speaker_ecapa"),
+        speaker_thresholds_path=_env_str(
+            "VOXSENTINEL_SPEAKER_THRESHOLDS_PATH", "models/speaker_thresholds.json"
+        ),
         min_duration_s=_env_float("VOXSENTINEL_MIN_DURATION_S", 2.0),
         max_duration_s=_env_float("VOXSENTINEL_MAX_DURATION_S", 600.0),
         silence_rms=_env_float("VOXSENTINEL_SILENCE_RMS", 0.005),
         quiet_rms=_env_float("VOXSENTINEL_QUIET_RMS", 0.02),
         clipping_peak=_env_float("VOXSENTINEL_CLIPPING_PEAK", 0.995),
         detector_model_path=_env_str("VOXSENTINEL_DETECTOR_MODEL_PATH", "models/detector.joblib"),
+        forensics_enabled=_env_bool("VOXSENTINEL_FORENSICS_ENABLED", True),
+        forensics_threshold=_env_float("VOXSENTINEL_FORENSICS_THRESHOLD", 0.50),
+        mfcc_speaker_enabled=_env_bool("VOXSENTINEL_MFCC_SPEAKER_ENABLED", True),
+        require_ecapa_speaker=_env_bool("VOXSENTINEL_REQUIRE_ECAPA_SPEAKER", False),
         speaker_model_path=_env_str("VOXSENTINEL_SPEAKER_MODEL_PATH", "models/speaker.joblib"),
+        temp_upload_dir=_env_str("VOXSENTINEL_TEMP_UPLOAD_DIR", ".voxsentinel_tmp"),
         dataset_dir=_env_str("VOXSENTINEL_DATASET_DIR", "data"),
         report_dir=_env_str("VOXSENTINEL_REPORT_DIR", "reports"),
-        gnani_enabled=_env_str("VOXSENTINEL_GNANI_ENABLED", "false").strip().lower()
-        in ("1", "true", "yes", "on"),
-        # Backend-only secret. VOXSENTINEL_GNANI_API_KEY wins; GNANI_API_KEY
-        # (the provider SDK's documented variable) is accepted as a fallback.
-        gnani_api_key=_env_str("VOXSENTINEL_GNANI_API_KEY", _env_str("GNANI_API_KEY", "")),
-        gnani_base_url=_env_str("VOXSENTINEL_GNANI_BASE_URL", "https://api.vachana.ai"),
+        # One credential for the whole product. A deployment that sets only
+        # API_KEY (the platform secret form) still gets STT and TTS working.
+        vach_api_key=_resolve_vach_api_key(),
+        vach_base_url=_env_str("VOXSENTINEL_VACH_BASE_URL", _env_str("VOXSENTINEL_GNANI_BASE_URL", "https://api.vachana.ai")),
+        vach_stt_timeout_s=_env_float("VOXSENTINEL_VACH_STT_TIMEOUT_S", 120.0),
+        vach_stt_max_chunk_seconds=_env_float("VOXSENTINEL_VACH_STT_MAX_CHUNK_SECONDS", 28.0),
+        vach_stt_language_code=_env_str("VOXSENTINEL_VACH_STT_LANGUAGE_CODE", "indic-auto"),
+        # TTS is enabled automatically when a key exists, unless explicitly
+        # disabled, so dropping in the credential is enough to light it up.
+        gnani_enabled=_env_bool("VOXSENTINEL_GNANI_ENABLED", bool(_resolve_vach_api_key())),
+        # Backend-only secret, sharing the same resolution as STT.
+        gnani_api_key=_resolve_vach_api_key(),
+        gnani_base_url=_env_str("VOXSENTINEL_GNANI_BASE_URL", _env_str("VOXSENTINEL_VACH_BASE_URL", "https://api.vachana.ai")),
         gnani_connect_timeout_s=_env_float("VOXSENTINEL_GNANI_CONNECT_TIMEOUT_S", 5.0),
         gnani_read_timeout_s=_env_float("VOXSENTINEL_GNANI_READ_TIMEOUT_S", 30.0),
         gnani_max_text_chars=_env_int("VOXSENTINEL_GNANI_MAX_TEXT_CHARS", 1000),

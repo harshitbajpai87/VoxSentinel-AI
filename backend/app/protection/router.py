@@ -19,10 +19,21 @@ from sqlalchemy.orm import Session
 
 from app.db.session import Database
 from app.models.protection import FamilyVoiceProfileORM, ProtectionAnalysisORM
+from app.services.audio_validation import AudioValidationError
+from app.services.ingestion import ingest_audio, read_upload_limited
 
 router = APIRouter(prefix="/protection", tags=["protection"])
 
-_PROFILE_DIR = Path("data/family_voices")
+def _profile_dir(settings) -> Path:
+    """Writable directory for family reference recordings.
+
+    Resolved from settings.dataset_dir instead of a path relative to the
+    process CWD: serverless hosts mount the deployment read-only and only
+    /tmp is writable, so a hardcoded "data/family_voices" raised a
+    PermissionError and the create-profile request failed with a 500.
+    Locally dataset_dir is "data", so this keeps the original location.
+    """
+    return Path(settings.dataset_dir) / "family_voices"
 
 
 def _session(request: Request):
@@ -73,7 +84,11 @@ async def analyze(
     profile_id: Annotated[str | None, Form()] = None,
 ) -> dict:
     _require_consent(consent)
-    data = await file.read()
+    settings = request.app.state.settings
+    # Bounded read through the shared ingestion layer: the previous
+    # `await file.read()` consumed an unbounded body in memory, which is exactly
+    # how a long call recording turned into an OOM instead of a clear 413.
+    data = await read_upload_limited(file, settings, "audio")
     service = request.app.state.protection_service
 
     profile = None
@@ -96,10 +111,19 @@ async def analyze(
         )
     except HTTPException:
         raise
-    except Exception as exc:  # noqa: BLE001 - validation errors map to 400
+    except AudioValidationError as exc:
+        # Preserve the documented status: 413 oversize, 415 unsupported,
+        # 422 undecodable, 503 missing decoder. Collapsing these into 400 is
+        # what made every failure look like "Analysis failed".
+        raise HTTPException(
+            status_code=exc.status_code,
+            detail={"code": exc.code, "message": exc.message},
+        ) from exc
+    except Exception as exc:  # noqa: BLE001 - validation errors map to their own status
         code = getattr(exc, "code", None)
         if code:
-            raise HTTPException(status_code=400, detail={"code": code, "message": str(exc)}) from exc
+            status = getattr(exc, "status_code", None) or 400
+            raise HTTPException(status_code=status, detail={"code": code, "message": str(exc)}) from exc
         raise HTTPException(
             status_code=500,
             detail={
@@ -206,20 +230,19 @@ async def create_profile(
                 "message": "The family member must have consented to this reference recording.",
             },
         )
-    data = await reference.read()
     settings = request.app.state.settings
-    from app.services.audio_validation import validate_and_decode
-
     try:
-        decoded = validate_and_decode(data, reference.filename or "reference.wav", settings)
-    except Exception as exc:  # noqa: BLE001
+        decoded, _name, _size = await ingest_audio(reference, settings, "reference")
+    except AudioValidationError as exc:
         raise HTTPException(
-            status_code=400, detail={"code": "invalid_reference", "message": str(exc)}
+            status_code=exc.status_code,
+            detail={"code": "invalid_reference", "message": exc.message},
         ) from exc
 
     profile_id = uuid.uuid4().hex[:16]
-    _PROFILE_DIR.mkdir(parents=True, exist_ok=True)
-    path = _PROFILE_DIR / f"{profile_id}.wav"
+    profile_dir = _profile_dir(settings)
+    profile_dir.mkdir(parents=True, exist_ok=True)
+    path = profile_dir / f"{profile_id}.wav"
     import soundfile as sf
 
     sf.write(str(path), decoded.samples, decoded.sample_rate, format="WAV")

@@ -15,12 +15,26 @@ RiskCategory = Literal[
 
 
 class HealthResponse(BaseModel):
+    """Liveness + capability report.
+
+    The original six fields are unchanged (the frontend types rely on them).
+    Everything below is additive and optional, so older clients keep working:
+    a missing optional external service must not make the backend look offline.
+    """
+
     status: Literal["ok", "degraded", "down"]
     backend_ready: bool
     model_ready: bool
     speaker_model_ready: bool
     version: str
     mode: str
+    # --- additive capability block ---
+    audio_decoder_ready: bool = False
+    max_upload_bytes: int = 0
+    effective_max_upload_bytes: int = 0
+    audio: dict = Field(default_factory=dict)
+    services: dict = Field(default_factory=dict)
+    environment: dict = Field(default_factory=dict)
 
 
 class ModelInfoOut(BaseModel):

@@ -7,10 +7,6 @@ import AnalyzeAudioPage from './pages/AnalyzeAudioPage'
 import RecordAudioPage from './pages/RecordAudioPage'
 import SpeakerVerificationPage from './pages/SpeakerVerificationPage'
 import HistoryPage from './pages/HistoryPage'
-import ExplainabilityPage from './pages/ExplainabilityPage'
-import SecurityAuditPage from './pages/SecurityAuditPage'
-import DocumentationPage from './pages/DocumentationPage'
-import SettingsPrivacyPage from './pages/SettingsPrivacyPage'
 
 export default function App() {
   return (
@@ -23,10 +19,6 @@ export default function App() {
         <Route path="/record" element={<RecordAudioPage />} />
         <Route path="/verify" element={<SpeakerVerificationPage />} />
         <Route path="/history" element={<HistoryPage />} />
-        <Route path="/explainability" element={<ExplainabilityPage />} />
-        <Route path="/security" element={<SecurityAuditPage />} />
-        <Route path="/docs" element={<DocumentationPage />} />
-        <Route path="/settings" element={<SettingsPrivacyPage />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>
