@@ -10,3 +10,6 @@ scikit-learn==1.9.1
 joblib==1.6.0
 websockets==15.0.1
 soxr==1.1.0
+# httpx backs every outbound provider client (Gnani/Vach, Gemini, Groq, Ollama);
+# app/api/routes.py imports it at startup, so it is a runtime requirement.
+httpx==0.28.1
