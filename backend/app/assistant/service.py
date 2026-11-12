@@ -101,7 +101,8 @@ PAGE_CONTEXT: dict[str, dict[str, str]] = {
         "module": "Analyze Audio + Voice Detection + Speech-to-Text",
         "hint": (
             'The page starts with an "Upload & inspect" step (drag-and-drop or a file picker, '
-            'then an in-browser preview), followed by a "Start analysis" action. A finished '
+            'then an in-browser preview), followed by a "Start analysis" action. The upload area '
+            'reads "Upload & inspect". A finished '
             'analysis reports an outcome, a score, audio-quality warnings and an explanation. '
             'Offer to explain supported formats, size limits, or how to read the result.' 
         ),
@@ -129,7 +130,7 @@ PAGE_CONTEXT: dict[str, dict[str, str]] = {
         "module": "History + Reports + CSV Export",
         "hint": (
             'The page lists past analyses with timestamp, file, risk category, model, latency and '
-            'outcome, and offers a CSV export of the history. Offer help reviewing a past '
+            'outcome, and the export control is labelled "Export CSV". Offer help reviewing a past '
             'analysis, opening a report, or exporting the history.' 
         ),
     },
