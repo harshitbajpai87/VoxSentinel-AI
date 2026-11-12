@@ -21,6 +21,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import api_router, health_router
+from app.api.assistant_routes import router as assistant_router
 from app.api.unified_routes import router as unified_router
 from app.core.config import Settings, get_settings
 from app.core.errors import install_error_handlers
@@ -364,6 +365,8 @@ def create_app(
     app.include_router(protection_router, prefix="/api/v1")
     # Unified multi-model pipeline: POST /api/analyze (audio or text).
     app.include_router(unified_router)
+    # Additive module: in-app help assistant (Gemini, server-side key only).
+    app.include_router(assistant_router, prefix="/api/v1")
     return app
 
 
