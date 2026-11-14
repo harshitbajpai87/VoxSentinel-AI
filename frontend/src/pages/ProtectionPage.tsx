@@ -765,7 +765,7 @@ function ResultPanel({ result, onExport }: { result: ProtectionAnalysis; onExpor
                   <span className="text-ink-dim"> — {c.category.replace(/_/g, ' ')}</span>
                   {c.matches.length > 0 && (
                     <p className="mt-0.5 text-xs text-ink-faint">
-                      Matched phrases: {c.matches.slice(0, 3).map((m) => `“${m}”`).join(', ')}
+                      Matched phrases: {c.matches.slice(0, 3).map((m) => `“${m.phrase}”`).join(', ')}
                     </p>
                   )}
                 </li>
