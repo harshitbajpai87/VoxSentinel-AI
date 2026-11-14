@@ -631,6 +631,28 @@ function ResultPanel({ result, onExport }: { result: ProtectionAnalysis; onExpor
           </div>
         </div>
 
+        {/* Full transcript, shown because the content layer quotes it as evidence */}
+        {result.transcript.text ? (
+          <div className="rounded-lg border border-line bg-surface p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs font-medium uppercase tracking-wide text-ink-faint">
+                Transcript · {languageName(result.transcript.language)}
+              </p>
+              <span className="text-xs text-ink-faint">
+                {result.transcript.model
+                  ? `transcribed by ${result.transcript.model}`
+                  : 'speech transcription'}
+              </span>
+            </div>
+            <p
+              className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-ink"
+              dir="auto"
+            >
+              {result.transcript.text}
+            </p>
+          </div>
+        ) : null}
+
         {/* {aiLabel} contextual analysis — clearly labelled, with honest fallback status */}
         <div className="rounded-lg border border-line bg-surface p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
