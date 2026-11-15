@@ -190,6 +190,117 @@ See `docs/ARCHITECTURE.md` for the system design, `docs/REAL_TRAINING_RESULTS.md
 for every measured training/evaluation number, and `docs/DEPLOYMENT_WINDOWS.md`
 for the step-by-step localhost deployment guide.
 
+## Deployment
+
+The project deploys as a split stack: a static React build on Vercel and the
+FastAPI service on Render. They are independent deployments that meet over HTTP.
+
+### Frontend — Vercel
+
+| | |
+|---|---|
+| Platform | Vercel |
+| Live URL | <https://voxs-two.vercel.app/> |
+| Build | `npm run build` in `frontend/` (Vite static output in `frontend/dist`) |
+| Runtime | Static hosting, no server-side rendering |
+
+This is the deployed frontend. It is a pure client application: it holds no API
+keys and talks to the backend only through the normalized API client in
+`frontend/src/lib/api.ts`.
+
+### Backend — Render
+
+| | |
+|---|---|
+| Platform | Render |
+| Framework | FastAPI, Python 3.11 |
+| Deployment method | Docker |
+| Dockerfile | `deploy/render/Dockerfile` |
+| Health endpoint | `/health` |
+| API documentation | `/docs` (OpenAPI UI, `/openapi.json`) |
+| Public URL | <https://voxsentinel-backend-lo9k.onrender.com> (verified 2026-11-15: `/health` returned 200) |
+
+The Dockerfile is the same stack used for any container host: `python:3.11-slim`
+with the CPU torch wheel, speechbrain, faster-whisper and the trained artifacts
+copied from `backend/`. It listens on `$PORT` (Render injects 10000) and ships a
+`HEALTHCHECK` that polls `/health`.
+
+The service runs on the free instance type, which sleeps after about 15 minutes
+without traffic. The next request then pays a 60–90 s cold start, and the
+frontend reports "API waking" while it finishes instead of claiming the backend
+is down. An always-on instance type removes this behaviour; a periodic request
+to `/health` only masks it.
+
+### Frontend ↔ backend integration
+
+- The frontend reads its API base from the **`VITE_API_BASE_URL`** environment
+  variable. On Vercel, set it in Project → Settings → Environment Variables for
+  the Production (and Preview, if used) targets, and it must contain the verified
+  Render backend URL, for example
+  `VITE_API_BASE_URL=https://voxsentinel-backend-lo9k.onrender.com`.
+- Vite inlines `VITE_*` values at build time, so **changing the variable requires
+  a new frontend deployment**. An edited variable alone changes nothing until the
+  site is redeployed.
+- CORS must allow the deployed frontend origin. The backend's allowlist comes
+  from `VOXSENTINEL_ALLOWED_ORIGINS` (comma-separated, for example
+  `https://voxs-two.vercel.app`); a missing origin surfaces in the browser as a
+  CORS error rather than as an HTTP status.
+- With `VITE_API_BASE_URL` unset, the client falls back to the page's own origin,
+  which is only correct when frontend and backend are served from the same host.
+
+### Render configuration
+
+| Setting | Value |
+|---|---|
+| Repository root | Docker build context (`.`), not `backend/` |
+| Dockerfile path | `deploy/render/Dockerfile` |
+| Port | `$PORT` (10000) |
+| Persistent disk | Mount at `/app/data` when using the default SQLite database |
+
+- **Build context is the repository root.** The image copies `backend/` from that
+  context, so pointing Render at `backend/` or at another Dockerfile path
+  produces a build that cannot find the application or its artifacts.
+- **FFmpeg and libsndfile are installed inside the image** (`ffmpeg`,
+  `libsndfile1`), which is what M4A/AAC/WebM/Opus decoding and the audio readers
+  rely on. Do not expect a bare Python environment to decode those formats.
+- **The image defaults to SQLite at `/app/data/voxsentinel.db`
+  (`VOXSENTINEL_DB_URL=sqlite:////app/data/voxsentinel.db`).** A persistent disk
+  mounted at `/app/data` is therefore required for analyses, audit records and
+  family voice profiles to survive a deploy or restart; without it the container
+  filesystem is rebuilt and the history is lost. If you point
+  `VOXSENTINEL_DB_URL` at a managed Postgres instance instead, as the current
+  deployment does, the disk is optional.
+
+### Verifying a deployment
+
+```bash
+curl -fsS https://<backend-host>/health    # 200 + JSON status
+open  https://<backend-host>/docs          # OpenAPI UI renders
+```
+
+A 200 from `/health` proves the process is up and serving; it does **not** prove
+every model is loaded and ready. Read the payload for
+`backend_ready`, `model_ready`, `speaker_model_ready` and the per-service block
+(for example `services.transcription`, `services.contextual_ai`): the API gates
+each feature honestly and reports the ones it cannot serve, so a green health
+check can still coexist with "assistant not configured" or a speaker backend
+running as the MFCC fallback.
+
+Troubleshooting:
+
+- **Wrong API URL** — the UI shows "API offline" or an empty history while
+  `/health` works when opened directly. Check the built bundle's
+  `VITE_API_BASE_URL` and redeploy the frontend after fixing it.
+- **CORS errors** — the browser console shows a blocked request and the network
+  tab shows no status. Add the exact frontend origin to
+  `VOXSENTINEL_ALLOWED_ORIGINS`, including scheme, and no trailing slash.
+- **Backend unavailable** — 502/503 immediately after a quiet period is the free
+  plan starting the container, not a crash. Re-check `/health` after 60–90 s.
+  If it persists, inspect the service's logs for an exit or out-of-memory kill;
+  the protected pipelines are the memory-heavy paths.
+- **Data disappeared after a deploy** — the SQLite database was written outside
+  a mounted disk. Attach the disk at `/app/data` or use a managed database.
+
 ## v14 — Groq contextual provider (verified live)
 
 - **Provider**: Groq (`api.groq.com/openai/v1`) via a provider-agnostic adapter.
