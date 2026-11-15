@@ -6,7 +6,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { api } from './api'
+import { ApiError, api } from './api'
 import type { HealthResponse } from './types'
 
 export type ConnectionStatus = 'checking' | 'online' | 'offline'
